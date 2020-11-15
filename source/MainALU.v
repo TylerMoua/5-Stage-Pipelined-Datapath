@@ -25,7 +25,20 @@ begin
 
 	endcase
 	
-	if(Result > 0)
+	//Flag Assignemnts:
+	if(Result < 3'b000)
 		Negative = 1'b1;
+	if (Result == 3'b000)
+		Zero = 1'b1;
+		
+	//Check for overlow with the following:
+	//if we have a negative result with two positive values (Left)
+	//Ex. (1) & ~(0) & ~(0)  = 1
+	//OR
+	//we have a positive result with two negative values (Right)
+	//Ex. ~(0) & 1 & 1  = 1
+	if ((Result[15]&(~A[15])&(~B[15])) | (~Result[15]&A[15]&B[15]))
+		Overflow = 1'b1;
+
 end
 endmodule
