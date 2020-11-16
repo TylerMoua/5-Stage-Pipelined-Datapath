@@ -1,7 +1,6 @@
 module MainALU(input [15:0]A, B, 
 		   input [2:0] ALUControl,
-		   output reg [31:0] Result,
-		   output reg Zero, Negative, Overflow);
+		   output reg [31:0] Result);
 
 wire [15:0] Result1, Result2;
 
@@ -34,24 +33,18 @@ begin
 
 	endcase
 	
+	
+	
+/* Move this to the BranchEquator
 	//Flag Assignemnts:
 	if(Result1 < 3'b000)
 		Negative = 1'b1;
 	if (Result1 == 3'b000)
 		Zero = 1'b1;
-		
-	/*
-	Check for overlow with the following:
-	if we have a negative result with two positive values (Left)
-	Ex. (1) & ~(0) & ~(0)  = 1
-	OR
-	we have a positive result with two negative values (Right)
-	Ex. ~(0) & 1 & 1  = 1
-	Note that we are testing result1
-	*/
 	if ((Result1[15]&(~A[15])&(~B[15])) | (~Result1[15]&A[15]&B[15]))
 		Overflow = 1'b1;
 
+*/
 	//Final assignment:
 	Result={Result2, Result1};
 end
