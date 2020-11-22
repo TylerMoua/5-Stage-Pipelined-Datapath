@@ -6,13 +6,15 @@
 `include "ALUControlUnit.v";
 `include "IFID.v";
 `include "IDEX.v";
+`include "EXMEM.v";
+`include "MEMWB.v";
 
 
 module CPU (input clk, rst);
 //Data Wires
-wire[31:0] Result,NewPC;
-wire [15:0] PCOut,InstructionIF,InstructionID, InstructionEX;
-wire [15:0] OP1ID, OP2ID, OP1EX, OP2EX, R15, PCToAdd;
+wire [31:0] Result, ResultEX, ResultMEM, ResultWB, NewPC;
+wire [15:0] InstructionIF,InstructionID, InstructionEX, InstructionMEM, InstructionWB;
+wire [15:0] PCOut,OP1ID, OP2ID, OP1EX, OP2EX, OP1MEM, R15, PCToAdd;
 //Control Signals
 wire Overflow, Branch, Jump, Halt, WriteOP2, RegWrite;
 wire [3:0] ALUOPID, ALUOPEX;		
@@ -37,8 +39,8 @@ IFID IFID(.PCIN(PCOut),.InstructionIn(InstructionIF), .clk(clk), .rst(rst),
 
 //WE SHOULD BE USING InstructionID. need to fix. For now, us InstructionIF to test other data.
 RegisterFile RF(.ReadReg1(InstructionIF[11:8]), .ReadReg2(InstructionIF[7:4]),
-				.WriteReg1(InstructionIF[11:8]), .WriteReg2(InstructionIF[7:4]), 
-				.WriteData1(Result[15:0]), .WriteData2(Result[31:16]),
+				.WriteReg1(InstructionWB[11:8]), .WriteReg2(InstructionWB[7:4]), 
+				.WriteData1(ResultWB[15:0]), .WriteData2(ResultWB[31:16]),
 				.clk(clk), .rst(rst), .RegWrite(RegWrite), .WriteOP2(WriteOP2),
 				.ReadData1(OP2ID), .ReadData2(OP1ID), .R15(R15));
 				
@@ -55,9 +57,17 @@ IDEX IDEX(.InstructionIn(InstructionID), .OP1In(OP1ID),.OP2In(OP2ID), .clk(clk),
 ALUControlUnit ACU(.ALUOP(ALUOPEX), .FunctionCode(InstructionEX[3:0]), 
 				.ALUControl(ALUControl));
 
-
 MainALU MALU(.A(OP2EX), .B(OP1EX), .rst(rst), .ALUControl(ALUControl), 
-			.Overflow(Overflow),.Result(Result));
+			.Overflow(Overflow),.Result(ResultEX));
 
+EXMEM EXMEM(.InstructionIn(InstructionEX), .OP1In(OP1EX), .ALUResultIn(ResultEX),
+			.clk(clk), .rst(rst), .ALUResultOut(ResultMEM), .InstructionOut(InstructionMEM),
+			.OP1Out(OP1MEM));		
+//MEM:
+
+
+MEMWB MEMWB(.InstructionIn(InstructionMEM), .DataIn(ResultMEM), .clk(clk), .rst(rst),
+			.DataOut(ResultWB), .InstructionOut(InstructionWB));
+//WB:
 
 endmodule

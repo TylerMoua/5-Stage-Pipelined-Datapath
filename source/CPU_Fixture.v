@@ -14,9 +14,18 @@ begin
 	forever #10 clk = ~clk;
 end
 initial
-	$monitor("\nPC: %h\nInstruction: %h,\nR1: %h R2: %h\nOP1: %h OP2: %h\nALUOUT: %h\n",
+begin
+/* 	$monitor("\nPC: %h\nInstruction: %h,\nR1: %h R2: %h\nOP1: %h OP2: %h\nALUOUT: %h\n",
 		 CPU.ProgramCounter.PC, CPU.IM.Instructions[0],CPU.RF.Registers[0], 
 		 CPU.RF.Registers[1], CPU.RF.ReadData1, CPU.RF.ReadData2, CPU.MALU.Result);
+		 */ 
+	$monitor("\nPC: %h\nRegisters:\n%h\n%h\n%h\n%h\n%h\n%h\n%h\n%h",
+			CPU.ProgramCounter.PC,
+			CPU.RF.Registers[0], CPU.RF.Registers[1], CPU.RF.Registers[2], 
+			CPU.RF.Registers[3], CPU.RF.Registers[4], CPU.RF.Registers[5],
+			CPU.RF.Registers[6], CPU.RF.Registers[7]);			
+end
+
 initial
 begin
 	rst = 1'b0;

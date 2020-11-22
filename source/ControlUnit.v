@@ -5,6 +5,7 @@ module ControlUnit(input [3:0] Opcode,
 
 always @(*)
 begin
+	//NEED TO FIX SWAP CONTROL SINAL
 	case (Opcode)
 		//A-TYPE
 		4'b0001:
