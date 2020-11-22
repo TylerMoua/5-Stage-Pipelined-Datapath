@@ -5,7 +5,7 @@ module BranchEquator_Fixture;
 reg [15:0] A, B;
 reg [2:0]  BranchSelect;
 reg Branch, Jump;
-wire Overflow, BranchingSoFlush;
+wire BranchingSoFlush;
 
 initial
 begin
@@ -13,6 +13,10 @@ begin
 	$monitor("A= %b B= %b BranchingSoFlush = %b\n", A, B, BranchingSoFlush);
 end
 BranchEquator BE(.A(A), .B(B), .BranchSelect(BranchSelect), .Branch(Branch), .Jump(Jump), .BranchingSoFlush(BranchingSoFlush));
+
+initial
+        $vcdpluson;
+
 
 initial
 begin
