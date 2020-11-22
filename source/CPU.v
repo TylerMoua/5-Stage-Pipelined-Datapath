@@ -19,12 +19,13 @@ wire [3:0] ALUOPID, ALUOPEX;
 wire [2:0] ALUControl;
 
 //Components:
-//For now we use halt
 //IF:
+			
+//For now we use halt
 PC ProgramCounter(.NewPC(NewPC[15:0]), .clk(clk), .rst(rst), 
 				.Halt(Halt), .StopPC(Halt), .PC(PCOut));
 
-MainALU PCALU(.A(PCOut), .B(16'h0001), .ALUControl(3'b000), .Result(NewPC));
+MainALU PCALU(.A(PCOut), .B(16'h0002), .ALUControl(3'b000), .Result(NewPC));
 				
 InstructionMemory IM(.ReadAddress(PCOut), .clk(clk),.rst(rst),
 				.Instruction(InstructionIF));
@@ -33,8 +34,10 @@ IFID IFID(.PCIN(PCOut),.InstructionIn(InstructionIF), .clk(clk), .rst(rst),
 			.PCOUT(PCToAdd), .InstructionOut(InstructionID));
 
 //ID:
-RegisterFile RF(.ReadReg1(InstructionID[11:8]), .ReadReg2(InstructionID[7:4]),
-				.WriteReg1(InstructionID[11:8]), .WriteReg2(InstructionID[7:4]), 
+
+//WE SHOULD BE USING InstructionID. need to fix. For now, us InstructionIF to test other data.
+RegisterFile RF(.ReadReg1(InstructionIF[11:8]), .ReadReg2(InstructionIF[7:4]),
+				.WriteReg1(InstructionIF[11:8]), .WriteReg2(InstructionIF[7:4]), 
 				.WriteData1(Result[15:0]), .WriteData2(Result[31:16]),
 				.clk(clk), .rst(rst), .RegWrite(RegWrite), .WriteOP2(WriteOP2),
 				.ReadData1(OP2ID), .ReadData2(OP1ID), .R15(R15));

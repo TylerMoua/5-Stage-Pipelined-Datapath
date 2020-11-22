@@ -20,11 +20,13 @@ begin
 			3'b000: 
 			begin
 				Result1 = A + B;
+				Overflow = Result1[16];	
 			end
 			//SUB
 			3'b001: 
 			begin	
 				Result1 = A - B;
+				Overflow = Result1[16];	
 			end
 			//MOVE
 			3'b010: Result1 = B;
@@ -40,8 +42,6 @@ begin
 			3'b101: Result1 = A | B;
 			default: Result1 = A | B;
 		endcase
-		
-		Overflow = Result1[16];	
 		Result={Result2, Result1[15:0]};
 	end
 end

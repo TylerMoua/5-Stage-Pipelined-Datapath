@@ -17,14 +17,11 @@ begin
 		//ADD R0 R1
 		Instructions[0]<=16'h1010;
 		//SUB R2 R3
-		Instructions[1]<=16'h1231;
+		Instructions[2]<=16'h1231;
 		//Move R4 R5 
-		Instructions[2]<=16'h145e;
+		Instructions[4]<=16'h145e;
 		//Swap R6 R7
-		Instructions[3]<=16'h167f;
-		
-		
-
+		Instructions[6]<=16'h167f;
 	end
 	else
 	

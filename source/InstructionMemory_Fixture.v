@@ -31,8 +31,14 @@ initial
 begin
 	ReadAddress = 0;
 	@(posedge clk);
+	ReadAddress = 1;
 	@(posedge clk);
+	ReadAddress = 2;
 	@(posedge clk);
+	ReadAddress = 3;
+	@(posedge clk);
+	ReadAddress = 4;
+
 
 	
 end
