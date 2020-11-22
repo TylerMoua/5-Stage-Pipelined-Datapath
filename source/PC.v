@@ -1,6 +1,6 @@
 module PC(input [15:0] NewPC,
 		  input clk, rst,
-		  input Halt StopPC,
+		  input Halt, StopPC,
 		  output reg [15:0] PC);
 reg [15:0] PreviousPC;
 always @(posedge clk, negedge rst)
@@ -12,8 +12,8 @@ begin
 	end
 	else
 	begin
-	//Not functional yet.
-	//More logic is needed to deal with these control signals
+	//May not be functional yet.
+	//May need more logic is needed to deal with these control signals
 		if(Halt)
 			PC <= PreviousPC;
 		else if(StopPC)
@@ -24,5 +24,6 @@ begin
 			PreviousPC <= NewPC;
 			PC <= NewPC;
 		end
+	end
 end
 endmodule

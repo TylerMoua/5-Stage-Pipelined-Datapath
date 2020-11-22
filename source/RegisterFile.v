@@ -11,7 +11,7 @@ begin
 	if(rst==0)
 	begin
 		for (i = 0; i<16; i=i+1)
-			Registers[i]=0;
+			Registers[i]<=0;
 	end
 	else
 	begin
