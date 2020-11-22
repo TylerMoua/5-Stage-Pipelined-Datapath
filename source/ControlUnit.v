@@ -6,7 +6,7 @@ module ControlUnit(input [3:0] Opcode,
 always @(*)
 begin
 	case (Opcode)
-		//ADD
+		//A-TYPE
 		4'b0001:
 		begin
 		RegWrite = 1;

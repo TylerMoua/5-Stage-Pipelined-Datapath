@@ -4,7 +4,7 @@ module ALUControlUnit(input [3:0] ALUOP, FunctionCode,
 always @(*)
 begin
 	case (ALUOP)
-		//ADD
+		//A-TYPE
 		4'b0001:
 		begin
 			case (FunctionCode)
@@ -15,8 +15,8 @@ begin
 				//MOVE
 				4'b1110: ALUControl = 010;
 				//SWAP
-				4'b1111: ALUControl = 101;
-				default ALUControl = 111;
+				4'b1111: ALUControl = 011;
+				default ALUControl = 011;
 			endcase
 		end
 	endcase

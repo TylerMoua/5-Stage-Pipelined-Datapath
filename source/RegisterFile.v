@@ -15,6 +15,15 @@ begin
 	//Test Values:
 		Registers[0] <= 16'h0001;
 		Registers[1] <= 16'h0001;
+		
+		Registers[2] <= 16'h000f;
+		Registers[3] <= 16'h000e;
+		
+		Registers[4] <= 16'hf000;
+		Registers[5] <= 16'h0ff0;
+		
+		Registers[6] <= 16'h0f0f;
+		Registers[7] <= 16'hf0f0;
 		ReadData1 <= 0;
 		ReadData2 <= 0;
 	end
