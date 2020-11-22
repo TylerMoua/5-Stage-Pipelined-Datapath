@@ -7,12 +7,13 @@ reg [15:0] Instructions [N-1:0];
 integer i;
 always @(posedge clk, negedge rst)
 begin
-	Instructions[0]<= {16'b0001000000010000};
-
-	if(rst==0)
+	
+	if(!rst)
 	begin
+		//Test Value
 		for (i = 0; i<16; i=i+1)
-			Instructions[i]<=0;
+			Instructions[i]<={16'h1010};
+		
 	end
 	else
 	

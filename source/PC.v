@@ -1,6 +1,5 @@
 module PC(input [15:0] NewPC,
-		  input clk, rst,
-		  input Halt, StopPC,
+		  input clk, rst, Halt, StopPC,
 		  output reg [15:0] PC);
 reg [15:0] PreviousPC;
 always @(posedge clk, negedge rst)

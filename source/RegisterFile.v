@@ -8,10 +8,15 @@ integer i;
 
 always @(posedge clk, negedge rst)
 begin
-	if(rst==0)
+	if(!rst)
 	begin
-		for (i = 0; i<16; i=i+1)
-			Registers[i]<=0;
+		//for (i = 0; i<16; i=i+1)
+		//	Registers[i]<=0;
+	//Test Values:
+		Registers[0] <= 16'h0001;
+		Registers[1] <= 16'h0001;
+		ReadData1 <= 0;
+		ReadData2 <= 0;
 	end
 	else
 	begin
@@ -20,12 +25,13 @@ begin
 			Registers [WriteReg1] <= WriteData1;
 			if(WriteOP2)
 				Registers [WriteReg2] <= WriteData2;
+			//Unconditional Outputs:
+		ReadData1 <= Registers [ReadReg1];
+	ReadData2 <= Registers [ReadReg2];
 		end
 	end
 	
-	//Unconditional Outputs:
-	ReadData1 <= Registers [ReadReg1];
-	ReadData2 <= Registers [ReadReg2];
+
 	R15 <= Registers [15];
 	
 end
