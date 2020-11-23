@@ -59,6 +59,6 @@ $display("\n--------------------------------------");
 end
 
 initial
-	#300 $finish;
+	#220 $finish;
 
 endmodule

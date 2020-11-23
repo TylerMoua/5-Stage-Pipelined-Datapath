@@ -12,7 +12,7 @@
 
 module CPU (input clk, rst);
 //Data Wires
-wire [31:0] Result, ResultEX, ResultMEM, ResultWB, NewPC;
+wire [31:0] ResultEX, ResultMEM, ResultWB, NewPC;
 wire [15:0] InstructionIF,InstructionID, InstructionEX, InstructionMEM, InstructionWB;
 wire [15:0] PCOut,OP1ID, OP2ID, OP1EX, OP2EX, OP1MEM, R15, PCToAdd;
 //Control Signals
@@ -45,7 +45,7 @@ RegisterFile RF(.ReadReg1(InstructionIF[11:8]), .ReadReg2(InstructionIF[7:4]),
 				.ReadData1(OP2ID), .ReadData2(OP1ID), .R15(R15));
 				
 
-ControlUnit CU(.Opcode(InstructionID[15:12]), .Overflow(Overflow), 
+ControlUnit CU(.Opcode(InstructionID[15:12]), .FunctionCode(InstructionWB[3:0]), .Overflow(Overflow), 
 				.RegWrite(RegWrite), .ALUOP(ALUOPID), 
 			   .Branch(Branch), .Jump(Jump), .Halt(Halt), .WriteOP2(WriteOP2));
 					
