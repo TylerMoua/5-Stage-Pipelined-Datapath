@@ -1,11 +1,13 @@
 module InstructionMemory #(parameter N = 16)
 						  (input [15:0]ReadAddress,
 						   input clk, rst,
-						   output reg [15:0] Instruction);
+						   output [15:0] Instruction);
 
 //NEED: reg [7:0] Instructions [100:0] where Instruction[0] and Instruction[1] = One instruction
 reg [15:0] Instructions [N-1:0];
-integer i;
+
+	assign Instruction = Instructions [ReadAddress];
+
 always @(posedge clk, negedge rst)
 begin
 	
@@ -24,8 +26,5 @@ begin
 		//Swap R6 R7
 		Instructions[6]<=16'h167f;
 	end
-	else
-	
-		Instruction <= Instructions [ReadAddress];
 end
 endmodule
