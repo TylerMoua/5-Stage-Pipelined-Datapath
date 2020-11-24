@@ -2,7 +2,7 @@
 
 module ControlUnit_Fixture;
 
-reg [3:0] Opcode, FunctionCode;
+reg [3:0] OpcodeID, OpcodeWB, FunctionCode;
 reg Overflow;
 wire RegWrite, Branch, Jump, Halt, WriteOP2;
 wire [3:0] ALUOP;
@@ -14,7 +14,7 @@ begin
 			 RegWrite, Branch, Jump, Halt, WriteOP2, ALUOP);
 end
 
-ControlUnit CU(.Opcode(Opcode), .FunctionCode(FunctionCode), .Overflow(Overflow),
+ControlUnit CU(.OpcodeID(OpcodeID), .OpcodeWB(OpcodeWB), .FunctionCode(FunctionCode), .Overflow(Overflow),
 			   .RegWrite(RegWrite), .Branch(Branch), .Jump(Jump),
 			   .Halt(Halt), .WriteOP2(WriteOP2), .ALUOP(ALUOP));
 			   
@@ -25,7 +25,7 @@ initial
 initial
 begin
 	Overflow = 0;
-	Opcode=4'h1;
+	OpcodeID=4'h1;
 	FunctionCode=4'h0;
 	#10;
 	FunctionCode=4'h1;
