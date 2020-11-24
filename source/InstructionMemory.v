@@ -2,7 +2,8 @@ module InstructionMemory #(parameter N = 16)
 						  (input [15:0]ReadAddress,
 						   input clk, rst,
 						   output reg [15:0] Instruction);
-						   
+
+//NEED: reg [7:0] Instructions [100:0] where Instruction[0] and Instruction[1] = One instruction
 reg [15:0] Instructions [N-1:0];
 integer i;
 always @(posedge clk, negedge rst)

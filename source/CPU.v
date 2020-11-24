@@ -38,7 +38,7 @@ IFID IFID(.PCIN(PCOut),.InstructionIn(InstructionIF), .clk(clk), .rst(rst),
 //ID:
 
 //WE SHOULD BE USING InstructionID. need to fix. For now, us InstructionIF to test other data.
-RegisterFile RF(.ReadReg1(InstructionIF[11:8]), .ReadReg2(InstructionIF[7:4]),
+RegisterFile RF(.ReadReg1(InstructionID[11:8]), .ReadReg2(InstructionID[7:4]),
 				.WriteReg1(InstructionWB[11:8]), .WriteReg2(InstructionWB[7:4]), 
 				.WriteData1(ResultWB[15:0]), .WriteData2(ResultWB[31:16]),
 				.clk(clk), .rst(rst), .RegWrite(RegWrite), .WriteOP2(WriteOP2),

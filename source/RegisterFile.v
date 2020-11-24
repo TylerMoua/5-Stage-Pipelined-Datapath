@@ -36,10 +36,13 @@ begin
 				Registers [WriteReg2] <= WriteData2;
 		end
 	end
+end
+
+always @(negedge clk)
+begin
 	//Unconditional Outputs:
 	ReadData1 <= Registers [ReadReg1];
 	ReadData2 <= Registers [ReadReg2];
 	R15 <= Registers [15];
-	
 end
 endmodule
