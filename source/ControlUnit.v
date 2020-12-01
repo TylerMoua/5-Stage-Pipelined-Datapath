@@ -1,6 +1,7 @@
 module ControlUnit(input [3:0] OpcodeID, OpcodeWB, FunctionCode,
 				   input Overflow,
-				   output reg RegWrite, Branch, Jump, Halt, WriteOP2,
+				   output reg RegWrite, Branch, Jump, Halt, WriteOP2, MemRead, ALUSRC1, ALUSRC2, memToReg,
+				   output reg OffsetSelect, StoreOffset,
 				   output reg [3:0] ALUOP);
 
 
@@ -16,9 +17,29 @@ begin
 			Branch = 0;
 			Jump = 0;
 			Halt = 0;
+			memWrite=0;
+		end
+		//Load Byte Unsigned
+		4'b1001:
+		begin
+			RegWrite=1;
+			MemRead=1;
+			ALUOP = 0100;
+			memWrite=0;
+			
 			
 		end
+		//C-Type
+		4'b1001:
+		begin
+		end
+		//D-Type
+		4'b1001:
+		begin
+		end
 	endcase
+	
+////////////////////////////////////////////
 	case (OpcodeWB)
 		//A-TYPE
 		4'b0001:

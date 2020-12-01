@@ -1,5 +1,6 @@
 `include "RegisterFile.v";
 `include "InstructionMemory.v";
+`include "DataMemory.v";
 `include "MainALU.v";
 `include "PC.v";
 `include "ControlUnit.v";
@@ -8,11 +9,13 @@
 `include "IDEX.v";
 `include "EXMEM.v";
 `include "MEMWB.v";
+`include "MUX7.v";
+
 
 
 module CPU (input clk, rst);
 //Data Wires
-wire [31:0] ResultEX, ResultMEM, ResultWB, NewPC;
+wire [31:0] ALUResultEX, ALUResultMEM, ALUResultWB, ResultWB, NewPC, ReadDataMEM, ReadDataWB;
 wire [15:0] InstructionIF,InstructionID, InstructionEX, InstructionMEM, InstructionWB;
 wire [15:0] PCOut,OP1ID, OP2ID, OP1EX, OP2EX, OP1MEM, R15, PCToAdd;
 //Control Signals
@@ -58,16 +61,19 @@ ALUControlUnit ACU(.ALUOP(ALUOPEX), .FunctionCode(InstructionEX[3:0]),
 				.ALUControl(ALUControl));
 
 MainALU MALU(.A(OP2EX), .B(OP1EX), .rst(rst), .ALUControl(ALUControl), 
-			.Overflow(Overflow),.Result(ResultEX));
+			.Overflow(Overflow),.Result(ALUResultEX));
 
-EXMEM EXMEM(.InstructionIn(InstructionEX), .OP1In(OP1EX), .ALUResultIn(ResultEX),
-			.clk(clk), .rst(rst), .ALUResultOut(ResultMEM), .InstructionOut(InstructionMEM),
+EXMEM EXMEM(.InstructionIn(InstructionEX), .OP1In(OP1EX), .ALUResultIn(ALUResultEX),
+			.clk(clk), .rst(rst), .ALUResultOut(ALUResultMEM), .InstructionOut(InstructionMEM),
 			.OP1Out(OP1MEM));		
 //MEM:
 
+DataMemory DM(.Address(ALUResultMEM), .WriteData(OP1MEM),.clk(clk), .rst(rst), .memWrite(),.ReadData(ReadDataMEM));
 
-MEMWB MEMWB(.InstructionIn(InstructionMEM), .DataIn(ResultMEM), .clk(clk), .rst(rst),
-			.DataOut(ResultWB), .InstructionOut(InstructionWB));
+MEMWB MEMWB(.InstructionIn(InstructionMEM), .DataIn(ReadDataMEM), .clk(clk), .rst(rst),
+			.DataOut(ReadDataWB), .InstructionOut(InstructionWB), .ResultOut(ALUResultWB));
+			
+MUX7 M7 (.alu(ALUResultWB), .eight(ReadDataWB), .sixteen(ReadDataWB), .memToReg(), .Result(ResultWB));
 //WB:
 
 endmodule
