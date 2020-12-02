@@ -48,7 +48,7 @@ MUX1 M1(.A(NewPC[15:0]),.B(JBPC),.BranchingSoFlush(BranchingSoFlush),.Result(PCM
 PC ProgramCounter(.NewPC(PCMUXResult), .clk(clk), .rst(rst), 
 				.Halt(Halt), .StopPC(Halt), .PC(PCOut));
 
-MainALU PCALU(.A(PCOut), .B(16'h0002), .ALUControl(3'b000), .Result(NewPC));
+MainALU PCALU(.Op1(PCOut), .Op2(16'h0002), .ALUControl(3'b000), .Result(NewPC));
 				
 InstructionMemory IM(.ReadAddress(PCOut), .clk(clk),.rst(rst),
 				.Instruction(InstructionIF));
@@ -61,7 +61,7 @@ RegisterFile RF(.ReadReg1(InstructionID[11:8]), .ReadReg2(InstructionID[7:4]),
 				.WriteReg1(InstructionWB[11:8]), .WriteReg2(InstructionWB[7:4]), 
 				.WriteData1(ResultWB[15:0]), .WriteData2(ResultWB[31:16]),
 				.clk(clk), .rst(rst), .RegWrite(RegWrite), .WriteOP2(WriteOP2),
-				.ReadData1(OP2ID), .ReadData2(OP1ID), .R15(R15ID));
+				.ReadData1(OP1ID), .ReadData2(OP2ID), .R15(R15ID));
 
 ControlUnit CU(.OpcodeID(InstructionID[15:12]),.OpcodeEX(InstructionEX[15:12]),
 				.OpcodeMEM(InstructionMEM[15:12]), .OpcodeWB(InstructionWB[15:12]), 
@@ -100,7 +100,7 @@ MUX5	M5(.SEIMMD(SEImmdEX), .Op1(OP1EX), .Btb(), .oneAway(),
 ALUControlUnit ACU(.ALUOP(ALUOPEX), .FunctionCode(InstructionEX[3:0]), 
 				.ALUControl(ALUControl));
 
-MainALU MALU(.A(M3Result), .B(M5Result), .ALUControl(ALUControl), 
+MainALU MALU(.Op1(M5Result), .Op2(M3Result), .ALUControl(ALUControl), 
 			.Overflow(Overflow), .Result(ALUResultEX));
 
 EXMEM EXMEM(.InstructionIn(InstructionEX), .OP1In(OP1EX), .ALUResultIn(ALUResultEX),

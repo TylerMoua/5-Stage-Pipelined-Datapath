@@ -1,4 +1,4 @@
-module MainALU(input signed [15:0]A, B, 
+module MainALU(input signed [15:0]Op1, Op2, 
 		   input [2:0] ALUControl,
 		   output reg Overflow,
 		   output reg signed [31:0] Result);
@@ -14,28 +14,28 @@ begin
 		//ADD
 		3'b000: 
 		begin
-			Result1 = A + B;
+			Result1 = Op1 + Op2;
 			Overflow = Result1[16];	
 		end
 		//SUB
 		3'b001: 
 		begin	
-			Result1 = A - B;
+			Result1 = Op1 - Op2;
 			Overflow = Result1[16];	
 		end
 		//MOVE
-		3'b010: Result1 = B;
+		3'b010: Result1 = Op2;
 		//SWAP
 		3'b011: 
 		begin
-			Result1 = B;
-			Result2 = A;
+			Result1 = Op2;
+			Result2 = Op1;
 		end
 		//AND
-		3'b100: Result1 = A & B;
+		3'b100: Result1 = Op1 & Op2;
 		//OR - 101, 110, or 111
-		3'b101: Result1 = A | B;
-		default: Result1 = A | B;
+		3'b101: Result1 = Op1 | Op2;
+		default: Result1 = Op1 | Op2;
 	endcase
 	Result={Result2, Result1[15:0]};
 end

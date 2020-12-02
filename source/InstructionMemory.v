@@ -18,24 +18,25 @@ begin
 		//Format: 16h"abcd" where a= opcode, b=op1, c=op2, d=function code
 	/*
 		//Test Values for A-Type
-		//ADD R0 R1
+		//ADD R0 R1: 0= 0 + 1
 		Instructions[0]<=16'h1010;
-		//SUB R2 R3
+		//SUB R2 R3: 2 = 2 - 3 = -1 = ffff
 		Instructions[2]<=16'h1231;
-		//Move R4 R5 
+		//Move R4 R5: 5 = 4
 		Instructions[4]<=16'h145e;
 		//Swap R6 R7
 		Instructions[6]<=16'h167f;
-	*/	
+	//*/
+	
 	///*
 		//Test Values for B-Type
-		//LBU R0 0(R1)
+		//LBU R0 9(R1)
 		Instructions[0]<=16'h4010;
 		//SB R2 0(R3)
 		Instructions[2]<=16'h5230;
-		//LW R4 0(R5) 
+		//LW R4 0(R5): R4 = data in op5
 		Instructions[4]<=16'h6450;
-		//SW R6 0(R7)
+		//SW R6 1(R7): Mem of Op7 = data in op 6
 		Instructions[6]<=16'h7670;
 	//*/
 	end
