@@ -1,6 +1,6 @@
 module IDEX(input [15:0]OP1In, OP2In, InstructionIn, SEImmdIn, R15In,
 			input [3:0] ALUOPIn,
-			input clk, rst,
+			input clk, rst, flush,
 			output reg [3:0] ALUOPOut,
 			output reg [15:0] OP1Out, OP2Out, InstructionOut,SEImmdOut, R15Out);
 						   
@@ -9,7 +9,9 @@ begin
 	
 	if(!rst)
 	begin
-
+	end
+	else if (flush)
+	begin
 	end
 	else
 	begin

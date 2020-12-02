@@ -19,6 +19,10 @@ begin
 				default ALUControl = 011;
 			endcase
 		end
+		//AND
+		4'b1001: ALUControl = 100;
+		//OR
+		4'b1010: ALUControl = 101;
 		//All other cases require adding. Branching not handled here.
 		default: ALUControl = 000;
 	endcase

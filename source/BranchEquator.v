@@ -1,9 +1,10 @@
-module BranchEquator(input [15:0] A, B, 
+module BranchEquator(input [15:0] Op1,R15, BTB, OneAway, PCIn,
 					 input [1:0]  BranchSelect,
 					 input Branch, Jump,
 					 output reg BranchingSoFlush);
 
 reg Negative, Zero;
+reg [15:0] PreviousPC;
 
 always @(*)
 begin
@@ -12,9 +13,9 @@ begin
 	Zero = 1'b0;
 	BranchingSoFlush=1'b0;
 	//Test Result for flags:
-	if(A < B)
+	if(Op1 < R15)
 		Negative = 1'b1;
-	if (A == B)
+	if (Op1 == R15)
 		Zero = 1'b1;
 	//Test Flags for BranchResult
 	case(BranchSelect)
@@ -27,5 +28,10 @@ begin
 		2'b11: BranchingSoFlush = (Zero & Branch) | Jump;
 		default: BranchingSoFlush = 0;
 	endcase
+	
+	if(PCIn == PreviousPC)
+	begin
+		BranchingSoFlush=0;
+	end
 end
 endmodule

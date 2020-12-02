@@ -28,7 +28,7 @@ begin
 		Instructions[6]<=16'h167f;
 	//*/
 	
-	///*
+	/*
 		//Test Values for B-Type
 		//LBU R0 9(R1)
 		Instructions[0]<=16'h4010;
@@ -38,6 +38,32 @@ begin
 		Instructions[4]<=16'h6450;
 		//SW R6 1(R7): Mem of Op7 = data in op 6
 		Instructions[6]<=16'h7670;
+	//*/
+	
+	/*
+		//Test Values for C-Type- AND OR
+		//AND 0000 h0012 = 0000
+		Instructions[0]<=16'h9012;
+		//OR 0002 h0012 = 0012
+		Instructions[2]<=16'hA212;		
+		//AND 0012 0012 = 12
+		Instructions[4]<=16'h9412;
+		//OR A010 0012 = A012
+		Instructions[6]<=16'hA612;
+	//*/
+	
+	///*
+		//Test Values for C-Type
+		//BLT op1 04 - > True : pc = 2+8= a, False: pc = 4
+		Instructions[0]<=16'hD104;
+		//Shouldn't Execute
+		Instructions[2]<=16'hA212;		
+		//AND 0012 0012 = 12
+		Instructions[4]<=16'h9412;
+		//OR A010 0012 = A012
+		Instructions[6]<=16'hA612;
+		//ADD R0 R1: 0= 0 + 1
+		Instructions[10]<=16'h1010;
 	//*/
 	end
 end

@@ -27,6 +27,16 @@ begin
 	BranchSelect=0;
 	//Instructions in ID
 	case (OpcodeID)
+		//AND
+		4'b1001:
+		begin
+			OffsetSelect=01;			
+		end	
+		//OR
+		4'b1010:
+		begin
+			OffsetSelect=01;			
+		end	
 		//BLT
 		4'b1100:
 		begin
@@ -68,13 +78,13 @@ begin
 			ALUOP = OpcodeEX;		
 		end
 		//AND
-		4'b1110:
+		4'b1001:
 		begin
 			ALUOP = OpcodeEX;
 			ALUSRC1 =001;
 		end	
 		//OR
-		4'b1110:
+		4'b1010:
 		begin
 			ALUOP = OpcodeEX;
 			ALUSRC1 =001;
@@ -158,13 +168,13 @@ begin
 			 WriteOP2=1;
 		end
 		//AND
-		4'b1110:
+		4'b1001:
 		begin
 			MemToReg = 00;
 			RegWrite = 1;
 		end	
 		//OR
-		4'b1110:
+		4'b1010:
 		begin
 			MemToReg = 00;
 			RegWrite = 1;

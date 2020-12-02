@@ -26,6 +26,9 @@ begin
 		Registers[5] <= 16'h0005;
 		Registers[6] <= 16'h0006;
 		Registers[7] <= 16'h0007;
+		
+		Registers[15] <= 16'h0000;
+
 
 	end
 	else

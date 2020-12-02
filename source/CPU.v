@@ -12,12 +12,14 @@
 `include "MUX1.v";
 `include "MUX2.v";
 `include "MUX3.v";
+`include "MUX4.v";
 `include "MUX5.v";
 `include "MUX7.v";
 `include "BranchEquator.v"
 `include "SignExtendID.v"
 `include "SignExtendWB.v"
 `include "ZeroExtend.v"
+`include "ShiftLeft.v"
 
 
 
@@ -27,13 +29,14 @@ wire [31:0] ALUResultEX, ALUResultMEM, ALUResultWB, ResultWB, NewPC;
 wire [31:0] SEData, SEByte;
 wire [15:0] PCMUXResult, InstructionIF,InstructionID, InstructionEX;
 wire [15:0] InstructionMEM, InstructionWB, SEImmdID, SEImmdEX;
+wire [15:0] PCALU2OP, PCALU2OPShifted;
 wire [15:0] ReadDataMEM, ReadDataWB, PCOut,OP1ID, OP2ID, OP1EX, OP2EX;
 wire [15:0] OP1MEM, R15ID, R15EX, JBPC,PCToAdd, Four, Eight, Twelve;
-wire[15:0]  M3Result, M5Result, ReadDataExtended;
+wire [15:0]  M3Result, M5Result, ReadDataExtended;
 
 //Control Signals
 wire Overflow, Branch, Jump, Halt, WriteOP2, RegWrite;
-wire MemRead, ALUSRC1, ALUSRC2, MemWrite, StoreOffset, BranchingSoFlush;
+wire MemRead, ALUSRC1, ALUSRC2, MemWrite, StoreOffset, BranchingSoFlush, BranchingSoFlushEX;
 wire [3:0] ALUOPID, ALUOPEX;		
 wire [2:0] ALUControl;
 wire [1:0] MemToReg, OffsetSelect, BranchSelect;
@@ -48,13 +51,14 @@ MUX1 M1(.A(NewPC[15:0]),.B(JBPC),.BranchingSoFlush(BranchingSoFlush),.Result(PCM
 PC ProgramCounter(.NewPC(PCMUXResult), .clk(clk), .rst(rst), 
 				.Halt(Halt), .StopPC(Halt), .PC(PCOut));
 
-MainALU PCALU(.Op1(PCOut), .Op2(16'h0002), .ALUControl(3'b000), .Result(NewPC));
+MainALU PCALU1(.Op1(PCOut), .Op2(16'h0002), .ALUControl(3'b000), .Result(NewPC));
 				
 InstructionMemory IM(.ReadAddress(PCOut), .clk(clk),.rst(rst),
 				.Instruction(InstructionIF));
 				
 IFID IFID(.PCIN(NewPC[15:0]),.InstructionIn(InstructionIF), .clk(clk), .rst(rst), 
-			.PCOUT(PCToAdd), .InstructionOut(InstructionID));
+			.PCOUT(PCToAdd), .InstructionOut(InstructionID), .FlushIn(BranchingSoFlush),
+			.FlushOut(BranchingSoFlushEX));
 
 //ID:
 RegisterFile RF(.ReadReg1(InstructionID[11:8]), .ReadReg2(InstructionID[7:4]),
@@ -71,9 +75,7 @@ ControlUnit CU(.OpcodeID(InstructionID[15:12]),.OpcodeEX(InstructionEX[15:12]),
 				.BranchSelect(BranchSelect),.RegWrite(RegWrite), .ALUOP(ALUOPID), 
 			    .Branch(Branch), .Jump(Jump), .Halt(Halt), .WriteOP2(WriteOP2));
 				
-BranchEquator BE(.A(OP2ID), .B(OP1ID), .BranchSelect(BranchSelect),
-				 .Branch(Branch), .Jump(Jump),.BranchingSoFlush(BranchingSoFlush));	
-				 
+	 
 SignExtendID SEID1(.a(InstructionID[3:0]), .b(InstructionID[11:0]), 
 				   .ResultA(Four), .ResultB(Twelve));		  
 				   
@@ -81,11 +83,24 @@ ZeroExtend ZEID(.a(InstructionID[7:0]), .Result(Eight));
 				   
 MUX2 	M2(.four(Four),.eight(Eight),.twelve(Twelve),
 				.offsetSelect(OffsetSelect),.Result(SEImmdID));
-				
+								   
+MUX4 	M4(.Op1(InstructionID[11:0]), .Op2(InstructionID[7:0]), 
+			//.Btb(), .oneAway(),.ForwardToMux4(),
+			.hazard(0), .Jump(Jump),
+		  .Result(PCALU2OP));
+		  
+ShiftLeft SL(.a(PCALU2OP), .Result(PCALU2OPShifted));
+
+MainALU PCALU2(.Op1(PCToAdd), .Op2(PCALU2OPShifted), .ALUControl(3'b000), .Result(JBPC));
+
+BranchEquator BE(.Op1(OP1ID), .R15(R15ID), .BranchSelect(BranchSelect),.PCIn(PCOut),
+				//.Btb(), .oneAway(),
+				 .Branch(Branch), .Jump(Jump),.BranchingSoFlush(BranchingSoFlush));	
+							
 IDEX 	IDEX(.InstructionIn(InstructionID), .OP1In(OP1ID),.OP2In(OP2ID), .clk(clk), 
 			 .rst(rst), .ALUOPIn(ALUOPID), .ALUOPOut(ALUOPEX), .OP1Out(OP1EX),
 			 .SEImmdIn(SEImmdID),.OP2Out(OP2EX), .InstructionOut(InstructionEX),
-			 .SEImmdOut(SEImmdEX), .R15In(R15ID), .R15Out(R15EX));
+			 .SEImmdOut(SEImmdEX), .R15In(R15ID), .R15Out(R15EX),.flush(BranchingSoFlushEX));
 //EX:
 MUX3	M3(.SEIMMD(SEImmdEX), .Op2(OP2EX), .Btb(), .oneAway(), .R15(R15EX),
 			//For now, 0
@@ -97,7 +112,7 @@ MUX5	M5(.SEIMMD(SEImmdEX), .Op1(OP1EX), .Btb(), .oneAway(),
 		   .hazard(0),.ALUSRC(ALUSRC2),.ForwardToMux5(),
 		   .Result(M5Result));
 		   
-ALUControlUnit ACU(.ALUOP(ALUOPEX), .FunctionCode(InstructionEX[3:0]), 
+ALUControlUnit ACU(.ALUOP(ALUOPID), .FunctionCode(InstructionEX[3:0]), 
 				.ALUControl(ALUControl));
 
 MainALU MALU(.Op1(M5Result), .Op2(M3Result), .ALUControl(ALUControl), 
