@@ -15,13 +15,15 @@
 
 module CPU (input clk, rst);
 //Data Wires
-wire [31:0] ALUResultEX, ALUResultMEM, ALUResultWB, ResultWB, NewPC, ReadDataMEM, ReadDataWB;
+wire [31:0] ALUResultEX, ALUResultMEM, ALUResultWB, ResultWB, NewPC;
 wire [15:0] InstructionIF,InstructionID, InstructionEX, InstructionMEM, InstructionWB;
-wire [15:0] PCOut,OP1ID, OP2ID, OP1EX, OP2EX, OP1MEM, R15, PCToAdd;
+wire [15:0] ReadDataMEM, ReadDataWB, PCOut,OP1ID, OP2ID, OP1EX, OP2EX, OP1MEM, R15, PCToAdd;
 //Control Signals
 wire Overflow, Branch, Jump, Halt, WriteOP2, RegWrite;
+wire MemRead, ALUSRC1, ALUSRC2, MemWrite, StoreOffset;
 wire [3:0] ALUOPID, ALUOPEX;		
 wire [2:0] ALUControl;
+wire [1:0] MemToReg, OffsetSelect, BranchSelect;
 
 //Components:
 //IF:
@@ -48,9 +50,13 @@ RegisterFile RF(.ReadReg1(InstructionID[11:8]), .ReadReg2(InstructionID[7:4]),
 				.ReadData1(OP2ID), .ReadData2(OP1ID), .R15(R15));
 				
 
-ControlUnit CU(.OpcodeID(InstructionID[15:12]), .OpcodeWB(InstructionWB[15:12]), .FunctionCode(InstructionWB[3:0]), .Overflow(Overflow), 
-				.RegWrite(RegWrite), .ALUOP(ALUOPID), 
-			   .Branch(Branch), .Jump(Jump), .Halt(Halt), .WriteOP2(WriteOP2));
+ControlUnit CU(.OpcodeID(InstructionID[15:12]),.OpcodeEX(InstructionEX[15:12]),
+				.OpcodeMEM(InstructionMEM[15:12]), .OpcodeWB(InstructionWB[15:12]), 
+				.FunctionCode(InstructionWB[3:0]),.Overflow(Overflow), .OffsetSelect(OffsetSelect),
+				.MemToReg(MemToReg), .StoreOffset(StoreOffset), .MemRead(MemRead),
+				.ALUSRC1(ALUSRC1), .ALUSRC2(ALUSRC2), .MemWrite(MemWrite),
+				.BranchSelect(BranchSelect),.RegWrite(RegWrite), .ALUOP(ALUOPID), 
+			    .Branch(Branch), .Jump(Jump), .Halt(Halt), .WriteOP2(WriteOP2));
 					
 				
 IDEX IDEX(.InstructionIn(InstructionID), .OP1In(OP1ID),.OP2In(OP2ID), .clk(clk), 
@@ -60,7 +66,7 @@ IDEX IDEX(.InstructionIn(InstructionID), .OP1In(OP1ID),.OP2In(OP2ID), .clk(clk),
 ALUControlUnit ACU(.ALUOP(ALUOPEX), .FunctionCode(InstructionEX[3:0]), 
 				.ALUControl(ALUControl));
 
-MainALU MALU(.A(OP2EX), .B(OP1EX), .rst(rst), .ALUControl(ALUControl), 
+MainALU MALU(.A(OP2EX), .B(OP1EX), .ALUControl(ALUControl), 
 			.Overflow(Overflow),.Result(ALUResultEX));
 
 EXMEM EXMEM(.InstructionIn(InstructionEX), .OP1In(OP1EX), .ALUResultIn(ALUResultEX),
@@ -68,12 +74,11 @@ EXMEM EXMEM(.InstructionIn(InstructionEX), .OP1In(OP1EX), .ALUResultIn(ALUResult
 			.OP1Out(OP1MEM));		
 //MEM:
 
-DataMemory DM(.Address(ALUResultMEM), .WriteData(OP1MEM),.clk(clk), .rst(rst), .memWrite(),.ReadData(ReadDataMEM));
+DataMemory DM(.Address(ALUResultMEM[15:0]), .WriteData(OP1MEM),.clk(clk), .rst(rst), .memWrite(MemWrite),.ReadData(ReadDataMEM));
 
-MEMWB MEMWB(.InstructionIn(InstructionMEM), .DataIn(ReadDataMEM), .clk(clk), .rst(rst),
-			.DataOut(ReadDataWB), .InstructionOut(InstructionWB), .ResultOut(ALUResultWB));
+MEMWB MEMWB(.InstructionIn(InstructionMEM), .ReadDataIn(ReadDataMEM),.ALUResultIn(ALUResultMEM), .clk(clk), .rst(rst),
+			.ReadDataOut(ReadDataWB), .InstructionOut(InstructionWB), .ALUResultOut(ALUResultWB));
 			
-MUX7 M7 (.alu(ALUResultWB), .eight(ReadDataWB), .sixteen(ReadDataWB), .memToReg(), .Result(ResultWB));
+MUX7 M7 (.alu(ALUResultWB), .eight(ReadDataWB), .sixteen(ReadDataWB), .memToReg(MemToReg), .Result(ResultWB));
 //WB:
-
 endmodule

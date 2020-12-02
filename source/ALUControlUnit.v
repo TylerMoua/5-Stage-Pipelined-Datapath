@@ -19,6 +19,8 @@ begin
 				default ALUControl = 011;
 			endcase
 		end
+		//All other cases require adding. Branching not handled here.
+		default: ALUControl = 000;
 	endcase
 end
 endmodule

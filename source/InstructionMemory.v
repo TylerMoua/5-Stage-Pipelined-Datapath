@@ -13,10 +13,10 @@ begin
 	
 	if(!rst)
 	begin
-		//Test Value
 		//for (i = 0; i<16; i=i+1)
 		//	Instructions[i]<=0;
 		//Format: 16h"abcd" where a= opcode, b=op1, c=op2, d=function code
+	//Test Values for A-Type
 		//ADD R0 R1
 		Instructions[0]<=16'h1010;
 		//SUB R2 R3
