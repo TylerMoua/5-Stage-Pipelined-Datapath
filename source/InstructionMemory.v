@@ -16,7 +16,8 @@ begin
 		//for (i = 0; i<16; i=i+1)
 		//	Instructions[i]<=0;
 		//Format: 16h"abcd" where a= opcode, b=op1, c=op2, d=function code
-	//Test Values for A-Type
+	/*
+		//Test Values for A-Type
 		//ADD R0 R1
 		Instructions[0]<=16'h1010;
 		//SUB R2 R3
@@ -25,6 +26,18 @@ begin
 		Instructions[4]<=16'h145e;
 		//Swap R6 R7
 		Instructions[6]<=16'h167f;
+	*/	
+	///*
+		//Test Values for B-Type
+		//LBU R0 0(R1)
+		Instructions[0]<=16'h4010;
+		//SB R2 0(R3)
+		Instructions[2]<=16'h5230;
+		//LW R4 0(R5) 
+		Instructions[4]<=16'h6450;
+		//SW R6 0(R7)
+		Instructions[6]<=16'h7670;
+	//*/
 	end
 end
 endmodule

@@ -1,8 +1,9 @@
 module ControlUnit(input [3:0] OpcodeID, OpcodeEX, OpcodeMEM, OpcodeWB, FunctionCode,
 				   input Overflow,
-				   output reg RegWrite, Branch, Jump, Halt, WriteOP2, MemRead, ALUSRC1, ALUSRC2,
+				   output reg RegWrite, Branch, Jump, Halt, WriteOP2, MemRead, 
+				   output reg [2:0] ALUSRC1, ALUSRC2,
 				   output reg MemWrite, StoreOffset,
-				   output reg [1:0] MemToReg, OffsetSelect,BranchSelect,
+				   output reg [1:0] MemToReg, OffsetSelect, BranchSelect,
 				   output reg [3:0] ALUOP);
 
 
@@ -91,13 +92,13 @@ begin
 			ALUSRC2 =001;
 		end
 		//Load
-		4'b0100:
+		4'b0110:
 		begin
 			ALUOP = OpcodeEX;
 			ALUSRC2 =001;
 		end
 		//Store
-		4'b0100:
+		4'b0111:
 		begin
 			ALUOP = OpcodeEX;
 			ALUSRC2 =001;
@@ -136,12 +137,12 @@ begin
 			StoreOffset = 1;
 		end
 		//Load
-		4'b0100:
+		4'b0110:
 		begin
 			MemRead = 1;
 		end
 		//Store
-		4'b0100:
+		4'b0111:
 		begin
 			MemWrite = 1;
 		end
@@ -175,7 +176,7 @@ begin
 			RegWrite = 1;
 		end
 		//Load
-		4'b0100:
+		4'b0110:
 		begin
 			MemToReg = 01;
 			RegWrite = 1;

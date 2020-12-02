@@ -19,17 +19,17 @@ begin
 		//	Registers[i]<=0;
 	//Test Values:
 		//reg 0 = 1+1 = 16h'0002
-		Registers[0] <= 16'h0001;
+		Registers[0] <= 16'h0000;
 		Registers[1] <= 16'h0001;
 		//ref 2= f-e = 1111- 1110 = 16'h0001
-		Registers[2] <= 16'h000f;
-		Registers[3] <= 16'h000e;
+		Registers[2] <= 16'h0002;
+		Registers[3] <= 16'h0003;
 		//Reg 4 = 16'h0ff0
-		Registers[4] <= 16'hf000;
-		Registers[5] <= 16'h0ff0;
+		Registers[4] <= 16'h0004;
+		Registers[5] <= 16'h0005;
 		//Reg 6 = 16'hf0f0 Reg 7 = 16'h0f0f
-		Registers[6] <= 16'h0f0f;
-		Registers[7] <= 16'hf0f0;
+		Registers[6] <= 16'h0006;
+		Registers[7] <= 16'h0007;
 
 	end
 	else
