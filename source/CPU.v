@@ -18,6 +18,7 @@
 `include "BranchEquator.v"
 `include "SignExtendID.v"
 `include "SignExtendWB.v"
+`include "SignExtendMEM.v"
 `include "ZeroExtend.v"
 `include "ShiftLeft.v"
 
@@ -28,8 +29,8 @@ module CPU (input clk, rst);
 wire [31:0] ALUResultEX, ALUResultMEM, ALUResultWB, ResultWB, NewPC;
 wire [31:0] SEData, SEByte;
 wire [15:0] PCMUXResult, InstructionIF,InstructionID, InstructionEX;
-wire [15:0] InstructionMEM, InstructionWB, SEImmdID, SEImmdEX;
-wire [15:0] PCALU2OP, PCALU2OPShifted;
+wire [15:0] InstructionMEM, InstructionWB, SEImmdID, SEImmdEX,Op1ToStore;
+wire [15:0] PCALU2OP, PCALU2OPShifted,SEOp1,Op1ToStore1;
 wire [15:0] ReadDataMEM, ReadDataWB, PCOut,OP1ID, OP2ID, OP1EX, OP2EX;
 wire [15:0] OP1MEM, R15ID, R15EX, JBPC,PCToAdd, Four, Eight, Twelve;
 wire [15:0]  M3Result, M5Result, ReadDataExtended;
@@ -56,7 +57,7 @@ MainALU PCALU1(.Op1(PCOut), .Op2(16'h0002), .ALUControl(3'b000), .Result(NewPC))
 InstructionMemory IM(.ReadAddress(PCOut), .clk(clk),.rst(rst),
 				.Instruction(InstructionIF));
 				
-IFID IFID(.PCIN(NewPC[15:0]),.InstructionIn(InstructionIF), .clk(clk), .rst(rst), 
+IFID IFID(.PCIN(NewPC[15:0]),.InstructionIn(InstructionIF), .clk(clk), .rst(rst), .Halt(Halt), 
 			.PCOUT(PCToAdd), .InstructionOut(InstructionID), .FlushIn(BranchingSoFlush),
 			.FlushOut(BranchingSoFlushEX));
 
@@ -84,7 +85,7 @@ ZeroExtend ZEID(.a(InstructionID[7:0]), .Result(Eight));
 MUX2 	M2(.four(Four),.eight(Eight),.twelve(Twelve),
 				.offsetSelect(OffsetSelect),.Result(SEImmdID));
 								   
-MUX4 	M4(.Op1(InstructionID[11:0]), .Op2(InstructionID[7:0]), 
+MUX4 	M4(.Op1(SEImmdID), .Op2(InstructionID[7:0]), 
 			//.Btb(), .oneAway(),.ForwardToMux4(),
 			.hazard(0), .Jump(Jump),
 		  .Result(PCALU2OP));
@@ -122,7 +123,11 @@ EXMEM EXMEM(.InstructionIn(InstructionEX), .OP1In(OP1EX), .ALUResultIn(ALUResult
 			.clk(clk), .rst(rst), .ALUResultOut(ALUResultMEM), .InstructionOut(InstructionMEM),
 			.OP1Out(OP1MEM));		
 //MEM:
-DataMemory DM(.Address(ALUResultMEM[15:0]), .WriteData(OP1MEM),.clk(clk), .rst(rst), .memWrite(MemWrite),.ReadData(ReadDataMEM));
+SignExtendMEM SEMEM(.a(OP1MEM[7:0]), .Result(SEOp1));
+
+MUX1 M1MEM(.A(OP1MEM), .B(SEOp1), .BranchingSoFlush(StoreOffset), .Result(Op1ToStore));
+
+DataMemory DM(.Address(ALUResultMEM[15:0]), .WriteData(Op1ToStore),.clk(clk), .rst(rst), .memWrite(MemWrite),.ReadData(ReadDataMEM));
 
 MEMWB MEMWB(.InstructionIn(InstructionMEM), .ReadDataIn(ReadDataMEM),.ALUResultIn(ALUResultMEM), .clk(clk), .rst(rst),
 			.ReadDataOut(ReadDataWB), .InstructionOut(InstructionWB), .ALUResultOut(ALUResultWB));

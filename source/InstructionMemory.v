@@ -52,10 +52,23 @@ begin
 		Instructions[6]<=16'hA612;
 	//*/
 	
-	///*
+	/*
 		//Test Values for C-Type
 		//BLT op1 04 - > True : pc = 2+8= a, False: pc = 4
 		Instructions[0]<=16'hD104;
+		//Shouldn't Execute
+		Instructions[2]<=16'hA212;		
+		//AND 0012 0012 = 12
+		Instructions[4]<=16'h9412;
+		//OR A010 0012 = A012
+		Instructions[6]<=16'hA612;
+		//ADD R0 R1: 0= 0 + 1
+		Instructions[10]<=16'h1010;
+	//*/
+	/*
+		//Test Values for C-Type
+		//Jump 004 -> pc = 2+8= a
+		Instructions[0]<=16'h3004;
 		//Shouldn't Execute
 		Instructions[2]<=16'hA212;		
 		//AND 0012 0012 = 12

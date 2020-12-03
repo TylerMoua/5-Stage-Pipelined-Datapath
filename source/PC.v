@@ -14,9 +14,9 @@ begin
 	//May not be functional yet.
 	//May need more logic is needed to deal with these control signals
 		if(Halt)
-			PC <= PreviousPC;
-		else if(StopPC)
-			PC <= PreviousPC;
+		begin
+		
+		end
 		else
 		begin
 			//Output expected with no hazards in execution.

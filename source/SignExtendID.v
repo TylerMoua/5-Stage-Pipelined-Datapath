@@ -8,7 +8,7 @@ begin
 			   a[3],a[3],a[3],a[3],
 			   a[3],a[3],a[3],a[3],
 			   a};
-	ResultB = {b[3],b[3],b[3],b[3],
+	ResultB = {b[11],b[11],b[11],b[11],
 			  b};
 end
 endmodule

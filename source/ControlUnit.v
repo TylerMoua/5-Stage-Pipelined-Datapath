@@ -58,13 +58,13 @@ begin
 			BranchSelect=10;
 		end			
 		//Jump
-		4'b1110:
+		4'b0010:
 		begin
 			Jump = 1;
 			OffsetSelect = 10;
 		end			
 		//Halt
-		4'b1110:
+		4'b0011:
 		begin
 			Halt=1;
 		end	
