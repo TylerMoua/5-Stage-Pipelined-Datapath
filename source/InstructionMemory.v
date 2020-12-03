@@ -16,6 +16,20 @@ begin
 		//for (i = 0; i<16; i=i+1)
 		//	Instructions[i]<=0;
 		//Format: 16h"abcd" where a= opcode, b=op1, c=op2, d=function code
+	
+	//*
+	//Test Values for A-Type Hazards:
+		//ADD R0 R1: R0 = 0 + 1 = 1
+		Instructions[0]<=16'h1010;
+		//ADD R0 R1: R0 = 1 + 1 = 2
+		Instructions[2]<=16'h1010;
+		//ADD R0 R1: R0 = 2 + 1 = 3
+		Instructions[4]<=16'h1010;
+		//ADD R0 R1: R0 = 3 - 1 = 2
+		Instructions[6]<=16'h1011;
+	//*/
+	
+	
 	/*
 		//Test Values for A-Type
 		//ADD R0 R1: 0= 0 + 1

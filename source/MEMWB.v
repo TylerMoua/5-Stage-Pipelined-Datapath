@@ -1,7 +1,7 @@
 module MEMWB(input [15:0]InstructionIn, ReadDataIn, 
-			input [31:0] ALUResultIn,
+			input [31:0] ALUResultIn, OpsIn,
 			input clk, rst,
-			output reg [31:0] ALUResultOut,
+			output reg [31:0] ALUResultOut, OneAwayForward,
 			output reg [15:0] ReadDataOut,InstructionOut);
 						   
 always @(posedge clk, negedge rst)
@@ -16,6 +16,7 @@ begin
 		ALUResultOut= ALUResultIn;
 		ReadDataOut<=ReadDataIn;
 		InstructionOut<=InstructionIn;
+		OneAwayForward<=OpsIn;
 	end
 end
 endmodule

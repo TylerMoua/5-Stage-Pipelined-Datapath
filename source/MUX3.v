@@ -1,6 +1,7 @@
 module MUX3(input [15:0] SEIMMD, Op2, Btb, oneAway, R15,
 			input hazard,
-		  input [2:0] ALUSRC,ForwardToMux3,
+		  input [2:0] ALUSRC,
+		  input [1:0] ForwardToMux3,
 		  output reg [15:0] Result);
 always @(*)
 begin
@@ -12,8 +13,8 @@ begin
 	if(hazard)
 	begin
 		case (ForwardToMux3)
-		3'b011: Result = Btb;
-		default: Result = oneAway;
+		2'b01: Result = Btb;
+		2'b10: Result = oneAway;
 	endcase
 	end
 end

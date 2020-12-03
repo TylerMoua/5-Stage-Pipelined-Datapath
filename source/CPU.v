@@ -21,13 +21,14 @@
 `include "SignExtendMEM.v"
 `include "ZeroExtend.v"
 `include "ShiftLeft.v"
+`include "RegisterForwardingUnit.v"
 
 
 
 module CPU (input clk, rst);
 //Data Wires
 wire [31:0] ALUResultEX, ALUResultMEM, ALUResultWB, ResultWB, NewPC;
-wire [31:0] SEData, SEByte;
+wire [31:0] SEData, SEByte, BTBForward, OneAwayForward;
 wire [15:0] PCMUXResult, InstructionIF,InstructionID, InstructionEX;
 wire [15:0] InstructionMEM, InstructionWB, SEImmdID, SEImmdEX,Op1ToStore;
 wire [15:0] PCALU2OP, PCALU2OPShifted,SEOp1,Op1ToStore1;
@@ -36,11 +37,11 @@ wire [15:0] OP1MEM, R15ID, R15EX, JBPC,PCToAdd, Four, Eight, Twelve;
 wire [15:0]  M3Result, M5Result, ReadDataExtended;
 
 //Control Signals
-wire Overflow, Branch, Jump, Halt, WriteOP2, RegWrite;
+wire Overflow, Branch, Jump, Halt, WriteOP2, RegWrite, Hazard;
 wire MemRead, ALUSRC1, ALUSRC2, MemWrite, StoreOffset, BranchingSoFlush, BranchingSoFlushEX;
 wire [3:0] ALUOPID, ALUOPEX;		
 wire [2:0] ALUControl;
-wire [1:0] MemToReg, OffsetSelect, BranchSelect;
+wire [1:0] MemToReg, OffsetSelect, BranchSelect, ForwardToMux3, ForwardToMux4, ForwardToMux5;
 
 //Hazard Signals
 
@@ -86,8 +87,8 @@ MUX2 	M2(.four(Four),.eight(Eight),.twelve(Twelve),
 				.offsetSelect(OffsetSelect),.Result(SEImmdID));
 								   
 MUX4 	M4(.Op1(SEImmdID), .Op2(InstructionID[7:0]), 
-			//.Btb(), .oneAway(),.ForwardToMux4(),
-			.hazard(0), .Jump(Jump),
+			.Btb(BTBForward[31:16]), .oneAway(),.ForwardToMux4(ForwardToMux4),
+			.hazard(Hazard), .Jump(Jump),
 		  .Result(PCALU2OP));
 		  
 ShiftLeft SL(.a(PCALU2OP), .Result(PCALU2OPShifted));
@@ -95,7 +96,7 @@ ShiftLeft SL(.a(PCALU2OP), .Result(PCALU2OPShifted));
 MainALU PCALU2(.Op1(PCToAdd), .Op2(PCALU2OPShifted), .ALUControl(3'b000), .Result(JBPC));
 
 BranchEquator BE(.Op1(OP1ID), .R15(R15ID), .BranchSelect(BranchSelect),.PCIn(PCOut),
-				//.Btb(), .oneAway(),
+				.BTB(BTBForward[15:0]), .OneAway(OneAwayForward[15:0]),
 				 .Branch(Branch), .Jump(Jump),.BranchingSoFlush(BranchingSoFlush));	
 							
 IDEX 	IDEX(.InstructionIn(InstructionID), .OP1In(OP1ID),.OP2In(OP2ID), .clk(clk), 
@@ -103,14 +104,12 @@ IDEX 	IDEX(.InstructionIn(InstructionID), .OP1In(OP1ID),.OP2In(OP2ID), .clk(clk)
 			 .SEImmdIn(SEImmdID),.OP2Out(OP2EX), .InstructionOut(InstructionEX),
 			 .SEImmdOut(SEImmdEX), .R15In(R15ID), .R15Out(R15EX),.flush(BranchingSoFlushEX));
 //EX:
-MUX3	M3(.SEIMMD(SEImmdEX), .Op2(OP2EX), .Btb(), .oneAway(), .R15(R15EX),
-			//For now, 0
-		   .hazard(0),.ALUSRC(ALUSRC1),.ForwardToMux3(),
+MUX3	M3(.SEIMMD(SEImmdEX), .Op2(OP2EX), .Btb(BTBForward[31:16]), .oneAway(OneAwayForward[31:16]), .R15(R15EX),
+		   .hazard(Hazard),.ALUSRC(ALUSRC1),.ForwardToMux3(ForwardToMux3),
 		   .Result(M3Result));
 		   
-MUX5	M5(.SEIMMD(SEImmdEX), .Op1(OP1EX), .Btb(), .oneAway(),
-			//For now, 0
-		   .hazard(0),.ALUSRC(ALUSRC2),.ForwardToMux5(),
+MUX5	M5(.SEIMMD(SEImmdEX), .Op1(OP1EX), .Btb(BTBForward[15:0]), .oneAway(OneAwayForward[31:16]),
+		   .hazard(Hazard),.ALUSRC(ALUSRC2),.ForwardToMux5(ForwardToMux5),
 		   .Result(M5Result));
 		   
 ALUControlUnit ACU(.ALUOP(ALUOPID), .FunctionCode(InstructionEX[3:0]), 
@@ -119,9 +118,17 @@ ALUControlUnit ACU(.ALUOP(ALUOPID), .FunctionCode(InstructionEX[3:0]),
 MainALU MALU(.Op1(M5Result), .Op2(M3Result), .ALUControl(ALUControl), 
 			.Overflow(Overflow), .Result(ALUResultEX));
 
-EXMEM EXMEM(.InstructionIn(InstructionEX), .OP1In(OP1EX), .ALUResultIn(ALUResultEX),
+EXMEM EXMEM(.InstructionIn(InstructionEX), .OP1In(OP1EX), .OP2In(OP2EX), 
+				.ALUResultIn(ALUResultEX),
 			.clk(clk), .rst(rst), .ALUResultOut(ALUResultMEM), .InstructionOut(InstructionMEM),
-			.OP1Out(OP1MEM));		
+			.OP1Out(OP1MEM),.BTBForward(BTBForward));
+			
+RegisterForwardingUnit RFU(.OP1(InstructionEX[11:8]), 
+						   .BTBOP1(InstructionMEM[11:8]),.BTBOP2(InstructionMEM[7:4]), 
+						   .OAOP1(InstructionWB[11:8]), .OAOP2(InstructionWB[7:4]),
+						   .ForwardToMux3(ForwardToMux3), .ForwardToMux4(ForwardToMux4), 
+						   .ForwardToMux5(ForwardToMux5), .HazardDetected(Hazard));
+			
 //MEM:
 SignExtendMEM SEMEM(.a(OP1MEM[7:0]), .Result(SEOp1));
 
@@ -129,7 +136,8 @@ MUX1 M1MEM(.A(OP1MEM), .B(SEOp1), .BranchingSoFlush(StoreOffset), .Result(Op1ToS
 
 DataMemory DM(.Address(ALUResultMEM[15:0]), .WriteData(Op1ToStore),.clk(clk), .rst(rst), .memWrite(MemWrite),.ReadData(ReadDataMEM));
 
-MEMWB MEMWB(.InstructionIn(InstructionMEM), .ReadDataIn(ReadDataMEM),.ALUResultIn(ALUResultMEM), .clk(clk), .rst(rst),
+MEMWB MEMWB(.InstructionIn(InstructionMEM), .ReadDataIn(ReadDataMEM),.ALUResultIn(ALUResultMEM), 
+			.clk(clk), .rst(rst), .OpsIn(BTBForward), .OneAwayForward(OneAwayForward),
 			.ReadDataOut(ReadDataWB), .InstructionOut(InstructionWB), .ALUResultOut(ALUResultWB));
 			
 //WB:
