@@ -104,11 +104,11 @@ IDEX 	IDEX(.InstructionIn(InstructionID), .OP1In(OP1ID),.OP2In(OP2ID), .clk(clk)
 			 .SEImmdIn(SEImmdID),.OP2Out(OP2EX), .InstructionOut(InstructionEX),
 			 .SEImmdOut(SEImmdEX), .R15In(R15ID), .R15Out(R15EX),.flush(BranchingSoFlushEX));
 //EX:
-MUX3	M3(.SEIMMD(SEImmdEX), .Op2(OP2EX), .Btb(BTBForward[31:16]), .oneAway(OneAwayForward[31:16]), .R15(R15EX),
+MUX3	M3(.SEIMMD(SEImmdEX), .Op2(OP2EX), .Btb(BTBForward), .oneAway(OneAwayForward), .R15(R15EX),
 		   .hazard(Hazard),.ALUSRC(ALUSRC1),.ForwardToMux3(ForwardToMux3),
 		   .Result(M3Result));
 		   
-MUX5	M5(.SEIMMD(SEImmdEX), .Op1(OP1EX), .Btb(BTBForward[15:0]), .oneAway(OneAwayForward[31:16]),
+MUX5	M5(.SEIMMD(SEImmdEX), .Op1(OP1EX), .Btb(BTBForward), .oneAway(OneAwayForward),
 		   .hazard(Hazard),.ALUSRC(ALUSRC2),.ForwardToMux5(ForwardToMux5),
 		   .Result(M5Result));
 		   
@@ -123,11 +123,13 @@ EXMEM EXMEM(.InstructionIn(InstructionEX), .OP1In(OP1EX), .OP2In(OP2EX),
 			.clk(clk), .rst(rst), .ALUResultOut(ALUResultMEM), .InstructionOut(InstructionMEM),
 			.OP1Out(OP1MEM),.BTBForward(BTBForward));
 			
-RegisterForwardingUnit RFU(.OP1(InstructionEX[11:8]), 
+RegisterForwardingUnit RFU(.OP1(InstructionEX[11:8]), .OP2(InstructionEX[7:4]),
 						   .BTBOP1(InstructionMEM[11:8]),.BTBOP2(InstructionMEM[7:4]), 
 						   .OAOP1(InstructionWB[11:8]), .OAOP2(InstructionWB[7:4]),
 						   .ForwardToMux3(ForwardToMux3), .ForwardToMux4(ForwardToMux4), 
-						   .ForwardToMux5(ForwardToMux5), .HazardDetected(Hazard));
+						   .ForwardToMux5(ForwardToMux5), .HazardDetected(Hazard),
+						   .OpcodeMEM(InstructionMEM[15:12]), .FunctionCodeMEM(InstructionMEM[3:0]),
+						   .OpcodeWB(InstructionWB[15:12]), .FunctionCodeWB(InstructionWB[3:0]));
 			
 //MEM:
 SignExtendMEM SEMEM(.a(OP1MEM[7:0]), .Result(SEOp1));

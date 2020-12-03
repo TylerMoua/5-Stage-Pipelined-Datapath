@@ -1,6 +1,6 @@
 module MUX2(input [15:0] four, eight, twelve,
-		  input [1:0] offsetSelect,
-		  output reg [15:0] Result);
+			input [1:0] offsetSelect,
+			output reg [15:0] Result);
 always @(*)
 begin
 	case (offsetSelect)

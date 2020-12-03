@@ -23,9 +23,9 @@ begin
 		Instructions[0]<=16'h1010;
 		//ADD R0 R1: R0 = 1 + 1 = 2
 		Instructions[2]<=16'h1010;
-		//ADD R0 R1: R0 = 2 + 1 = 3
-		Instructions[4]<=16'h1010;
-		//ADD R0 R1: R0 = 3 - 1 = 2
+		//ADD R0 R0: R0 = 2 + 2 = 4
+		Instructions[4]<=16'h1000;
+		//SUB R0 R1: R0 = 3 - 1 = 3
 		Instructions[6]<=16'h1011;
 	//*/
 	

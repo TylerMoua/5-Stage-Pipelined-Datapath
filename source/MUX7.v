@@ -1,6 +1,6 @@
 module MUX7(input [31:0] alu,eight,sixteen,
-		  input [1:0] memToReg,
-		  output reg [31:0] Result);
+			input [1:0] memToReg,
+			output reg [31:0] Result);
 always @(*)
 begin
 	case (memToReg)
