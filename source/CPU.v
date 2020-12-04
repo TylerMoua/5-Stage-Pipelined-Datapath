@@ -88,9 +88,9 @@ ZeroExtend ZEID(.a(InstructionID[7:0]), .Result(Eight));
 MUX2 	M2(.four(Four),.eight(Eight),.twelve(Twelve),
 				.offsetSelect(OffsetSelect),.Result(SEImmdID));
 								   
-MUX4 	M4(.Op1(SEImmdID), .Op2(InstructionID), 
+MUX4 	M4(.Op(SEImmdID), 
 			.Btb(BTBForward), .oneAway(OneAwayForward),.ForwardToMux4(ForwardToMux4),
-			.hazard(Hazard), .Jump(Jump),
+			.hazard(Hazard),
 		  .Result(PCALU2OP));
 		  
 ShiftLeft SL(.a(PCALU2OP), .Result(PCALU2OPShifted));

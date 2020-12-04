@@ -1,15 +1,11 @@
 module MUX4(input [31:0]Btb, oneAway,
-			input [15:0] Op1, Op2,
+			input [15:0] Op,
 			input hazard,
-			input Jump,
 			input [2:0]ForwardToMux4,
 			output reg [15:0] Result);
 always @(*)
 begin
-	case (Jump)
-		1'b0: Result = Op2;
-		1'b1: Result = Op1;
-	endcase
+	Result = Op;
 	if(hazard)
 	begin
 		case (ForwardToMux4)
@@ -19,5 +15,6 @@ begin
 		3'b100: Result = oneAway [31:16];
 	endcase
 	end
+
 end
 endmodule
