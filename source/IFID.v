@@ -1,18 +1,19 @@
-module IFID(input [15:0]PCIN, InstructionIn,
-			input clk, rst, FlushIn, Halt,
+module IFID(input [15:0]PCIN, InstructionIn, OldInstruction,
+			input clk, rst, FlushIn, Halt, StopPC,
 			output reg FlushOut,
 			output reg [15:0] PCOUT, InstructionOut);
 						   
 always @(posedge clk, negedge rst)
 begin
 	
-	if(!rst)
+	if((!rst)||(Halt))
 	begin
 
 	end
-	if(Halt)
+	else
+	if(StopPC)
 	begin
-	
+	InstructionOut<=OldInstruction;
 	end
 	else
 	begin

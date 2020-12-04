@@ -18,13 +18,13 @@ begin
 		//Format: 16h"abcd" where a= opcode, b=op1, c=op2, d=function code
 	
 	//*
-	//Test Values for A-Type Hazards:
+	//Test Values for Hazards:
 		//ADD R0 R1: R0 = 0 + 1 = 1
 		Instructions[0]<=16'h1010;
-		//ADD R0 R1: R0 = 1 + 1 = 2
-		Instructions[2]<=16'h1010;
-		//ADD R0 R0: R0 = 2 + 2 = 4
-		Instructions[4]<=16'h1000;
+		//LW R0 0(R2): R4 = data in mem[2]
+		Instructions[2]<=16'h6002;		
+		//BGT op0 04 - > True : pc = 6+8= e, False: pc = 4
+		Instructions[4]<=16'hD004;
 		//SUB R0 R1: R0 = 3 - 1 = 3
 		Instructions[6]<=16'h1011;
 	//*/
@@ -48,7 +48,7 @@ begin
 		Instructions[0]<=16'h4010;
 		//SB R2 0(R3)
 		Instructions[2]<=16'h5230;
-		//LW R4 0(R5): R4 = data in op5
+		//LW R4 0(R5): R4 = data in mem[5]
 		Instructions[4]<=16'h6450;
 		//SW R6 1(R7): Mem of Op7 = data in op 6
 		Instructions[6]<=16'h7670;

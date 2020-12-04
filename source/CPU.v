@@ -22,36 +22,37 @@
 `include "ZeroExtend.v"
 `include "ShiftLeft.v"
 `include "RegisterForwardingUnit.v"
+`include "BCHazardControlUnit.v"
 
 
 
 module CPU (input clk, rst);
 //Data Wires
-wire [31:0] ALUResultEX, ALUResultMEM, ALUResultWB, ResultWB, NewPC;
+wire [31:0] JBPC, ALUResultEX, ALUResultMEM, ALUResultWB, ResultWB, NewPC;
 wire [31:0] SEData, SEByte, BTBForward, OneAwayForward;
 wire [15:0] PCMUXResult, InstructionIF,InstructionID, InstructionEX;
 wire [15:0] InstructionMEM, InstructionWB, SEImmdID, SEImmdEX,Op1ToStore;
 wire [15:0] PCALU2OP, PCALU2OPShifted,SEOp1,Op1ToStore1;
 wire [15:0] ReadDataMEM, ReadDataWB, PCOut,OP1ID, OP2ID, OP1EX, OP2EX;
-wire [15:0] OP1MEM, R15ID, R15EX, JBPC,PCToAdd, Four, Eight, Twelve;
+wire [15:0] OP1MEM, R15ID, R15EX, PCToAdd, Four, Eight, Twelve;
 wire [15:0]  M3Result, M5Result, ReadDataExtended;
 
 //Control Signals
-wire Overflow, Branch, Jump, Halt, WriteOP2, RegWrite, Hazard;
-wire MemRead, ALUSRC1, ALUSRC2, MemWrite, StoreOffset, BranchingSoFlush, BranchingSoFlushEX;
+wire  StopPC, Overflow, Branch, Jump, Halt, WriteOP2, RegWrite, Hazard, ALUSRC2;
+wire MemRead, MemWrite, StoreOffset, BranchingSoFlush, BranchingSoFlushEX;
 wire [3:0] ALUOPID, ALUOPEX;		
-wire [2:0] ALUControl;
-wire [1:0] MemToReg, OffsetSelect, BranchSelect, ForwardToMux3, ForwardToMux4, ForwardToMux5;
+wire [2:0] ALUControl,  ForwardToMux4, ForwardToMux3, ForwardToMux5;
+wire [1:0] MemToReg, ALUSRC1, OffsetSelect, BranchSelect;
 
 //Hazard Signals
 
 //DataPath:
 //IF:
 
-MUX1 M1(.A(NewPC[15:0]),.B(JBPC),.BranchingSoFlush(BranchingSoFlush),.Result(PCMUXResult));
+MUX1 M1(.A(NewPC[15:0]),.B(JBPC[15:0]),.BranchingSoFlush(BranchingSoFlush),.Result(PCMUXResult));
 
 PC ProgramCounter(.NewPC(PCMUXResult), .clk(clk), .rst(rst), 
-				.Halt(Halt), .StopPC(Halt), .PC(PCOut));
+				.Halt(Halt), .StopPC(StopPC), .PC(PCOut));
 
 MainALU PCALU1(.Op1(PCOut), .Op2(16'h0002), .ALUControl(3'b000), .Result(NewPC));
 				
@@ -60,7 +61,8 @@ InstructionMemory IM(.ReadAddress(PCOut), .clk(clk),.rst(rst),
 				
 IFID IFID(.PCIN(NewPC[15:0]),.InstructionIn(InstructionIF), .clk(clk), .rst(rst), .Halt(Halt), 
 			.PCOUT(PCToAdd), .InstructionOut(InstructionID), .FlushIn(BranchingSoFlush),
-			.FlushOut(BranchingSoFlushEX));
+			 .FlushOut(BranchingSoFlushEX), .StopPC(StopPC),
+			 .OldInstruction(InstructionID));
 
 //ID:
 RegisterFile RF(.ReadReg1(InstructionID[11:8]), .ReadReg2(InstructionID[7:4]),
@@ -86,8 +88,8 @@ ZeroExtend ZEID(.a(InstructionID[7:0]), .Result(Eight));
 MUX2 	M2(.four(Four),.eight(Eight),.twelve(Twelve),
 				.offsetSelect(OffsetSelect),.Result(SEImmdID));
 								   
-MUX4 	M4(.Op1(SEImmdID), .Op2(InstructionID[7:0]), 
-			.Btb(BTBForward[31:16]), .oneAway(),.ForwardToMux4(ForwardToMux4),
+MUX4 	M4(.Op1(SEImmdID), .Op2(InstructionID), 
+			.Btb(BTBForward), .oneAway(OneAwayForward),.ForwardToMux4(ForwardToMux4),
 			.hazard(Hazard), .Jump(Jump),
 		  .Result(PCALU2OP));
 		  
@@ -95,11 +97,12 @@ ShiftLeft SL(.a(PCALU2OP), .Result(PCALU2OPShifted));
 
 MainALU PCALU2(.Op1(PCToAdd), .Op2(PCALU2OPShifted), .ALUControl(3'b000), .Result(JBPC));
 
-BranchEquator BE(.Op1(OP1ID), .R15(R15ID), .BranchSelect(BranchSelect),.PCIn(PCOut),
-				.BTB(BTBForward[15:0]), .OneAway(OneAwayForward[15:0]),
+BranchEquator BE(.Op1(OP1ID),.Hazard(Hazard), .R15(R15ID), .BranchSelect(BranchSelect),
+				.BTB(BTBForward), .OneAway(OneAwayForward), .HazardSelect(ForwardToMux4),
 				 .Branch(Branch), .Jump(Jump),.BranchingSoFlush(BranchingSoFlush));	
 							
-IDEX 	IDEX(.InstructionIn(InstructionID), .OP1In(OP1ID),.OP2In(OP2ID), .clk(clk), 
+IDEX 	IDEX(.InstructionIn(InstructionID), .OP1In(OP1ID),.OP2In(OP2ID), .clk(clk),
+			 .StopPC(StopPC),
 			 .rst(rst), .ALUOPIn(ALUOPID), .ALUOPOut(ALUOPEX), .OP1Out(OP1EX),
 			 .SEImmdIn(SEImmdID),.OP2Out(OP2EX), .InstructionOut(InstructionEX),
 			 .SEImmdOut(SEImmdEX), .R15In(R15ID), .R15Out(R15EX),.flush(BranchingSoFlushEX));
@@ -123,14 +126,19 @@ EXMEM EXMEM(.InstructionIn(InstructionEX), .OP1In(OP1EX), .OP2In(OP2EX),
 			.clk(clk), .rst(rst), .ALUResultOut(ALUResultMEM), .InstructionOut(InstructionMEM),
 			.OP1Out(OP1MEM),.BTBForward(BTBForward));
 			
-RegisterForwardingUnit RFU(.OP1(InstructionEX[11:8]), .OP2(InstructionEX[7:4]),
+RegisterForwardingUnit RFU(.IDOP1(InstructionID[11:8]), .IDOP2(InstructionID[7:4]),
+						   .OP1(InstructionEX[11:8]), .OP2(InstructionEX[7:4]),
 						   .BTBOP1(InstructionMEM[11:8]),.BTBOP2(InstructionMEM[7:4]), 
 						   .OAOP1(InstructionWB[11:8]), .OAOP2(InstructionWB[7:4]),
 						   .ForwardToMux3(ForwardToMux3), .ForwardToMux4(ForwardToMux4), 
 						   .ForwardToMux5(ForwardToMux5), .HazardDetected(Hazard),
 						   .OpcodeMEM(InstructionMEM[15:12]), .FunctionCodeMEM(InstructionMEM[3:0]),
 						   .OpcodeWB(InstructionWB[15:12]), .FunctionCodeWB(InstructionWB[3:0]));
-			
+
+BCHazardControlUnit	BCHCU(.IDOP(InstructionID[15:12]),.EXOP(InstructionEX[15:12]), 
+						  .MEMOP(InstructionMEM[15:12]),.WBOP(InstructionWB[15:12]),
+						  .Hazard(Hazard),.StopPC(StopPC));	
+						  
 //MEM:
 SignExtendMEM SEMEM(.a(OP1MEM[7:0]), .Result(SEOp1));
 

@@ -16,7 +16,11 @@ begin
 		ALUResultOut= ALUResultIn;
 		ReadDataOut<=ReadDataIn;
 		InstructionOut<=InstructionIn;
-		OneAwayForward<=OpsIn;
+		//If we have a load word:
+		if((InstructionIn[15:12] == 4'b0110)||(InstructionIn[15:12]  == 4'b0100))
+			OneAwayForward<=ReadDataIn;
+		else
+			OneAwayForward<=ALUResultIn;
 	end
 end
 endmodule
