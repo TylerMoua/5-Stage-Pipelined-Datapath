@@ -25,6 +25,15 @@ begin
 	StoreOffset=0;
 	BranchSelect=0;
 	//Instructions in ID
+	if(((OpcodeID!= 4'b0001)&&(OpcodeID!= 4'b1001)&&
+	   (OpcodeID!= 4'b1010)&&(OpcodeID!= 4'b0100)&&
+	   (OpcodeID!= 4'b0101)&&(OpcodeID!= 4'b0110)&&
+	   (OpcodeID!= 4'b0111)&&(OpcodeID!= 4'b1100)&&
+	   (OpcodeID!= 4'b1101)&&(OpcodeID!= 4'b1110)&&
+	   (OpcodeID!= 4'b0010))||Overflow)
+	   begin
+		Halt = 1;
+	   end 
 	case (OpcodeID)
 		//AND
 		4'b1001:
@@ -61,12 +70,7 @@ begin
 		begin
 			Jump = 1;
 			OffsetSelect = 10;
-		end			
-		//Halt
-		4'b0011:
-		begin
-			Halt=1;
-		end	
+		end				
 	endcase
 
 	//Instructions in EX

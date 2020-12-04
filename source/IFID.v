@@ -6,9 +6,13 @@ module IFID(input [15:0]PCIN, InstructionIn, OldInstruction,
 always @(posedge clk, negedge rst)
 begin
 	
-	if((!rst)||(Halt))
+	if(!rst)
 	begin
 
+	end
+	else if(Halt)
+	begin
+		InstructionOut<=4'hxxxx;
 	end
 	else
 	if(StopPC)
