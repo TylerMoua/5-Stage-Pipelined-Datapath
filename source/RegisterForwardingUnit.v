@@ -1,5 +1,5 @@
 module RegisterForwardingUnit(input [3:0] OP1, OP2, BTBOP1, BTBOP2, OAOP1, OAOP2, OpcodeMEM, OpcodeWB, FunctionCodeMEM, FunctionCodeWB,
-							  input [3:0] IDOP1, IDOP2,
+							  input [3:0] IDOP1,
 							  output reg [2:0] ForwardToMux3,ForwardToMux4, ForwardToMux5,
 							  output reg HazardDetected);
 							 

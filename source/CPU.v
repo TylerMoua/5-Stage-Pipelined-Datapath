@@ -126,7 +126,7 @@ EXMEM EXMEM(.InstructionIn(InstructionEX), .OP1In(OP1EX), .OP2In(OP2EX),
 			.clk(clk), .rst(rst), .ALUResultOut(ALUResultMEM), .InstructionOut(InstructionMEM),
 			.OP1Out(OP1MEM),.BTBForward(BTBForward));
 			
-RegisterForwardingUnit RFU(.IDOP1(InstructionID[11:8]), .IDOP2(InstructionID[7:4]),
+RegisterForwardingUnit RFU(.IDOP1(InstructionID[11:8]),
 						   .OP1(InstructionEX[11:8]), .OP2(InstructionEX[7:4]),
 						   .BTBOP1(InstructionMEM[11:8]),.BTBOP2(InstructionMEM[7:4]), 
 						   .OAOP1(InstructionWB[11:8]), .OAOP2(InstructionWB[7:4]),
