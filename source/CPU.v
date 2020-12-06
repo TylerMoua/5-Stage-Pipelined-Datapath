@@ -147,7 +147,7 @@ MUX1 M1MEM(.A(OP1MEM), .B(SEOp1), .BranchingSoFlush(StoreOffset), .Result(Op1ToS
 DataMemory DM(.Address(ALUResultMEM[15:0]), .WriteData(Op1ToStore),.clk(clk), .rst(rst), .memWrite(MemWrite),.ReadData(ReadDataMEM));
 
 MEMWB MEMWB(.InstructionIn(InstructionMEM), .ReadDataIn(ReadDataMEM),.ALUResultIn(ALUResultMEM), 
-			.clk(clk), .rst(rst), .OpsIn(BTBForward), .OneAwayForward(OneAwayForward),
+			.clk(clk), .rst(rst), .OneAwayForward(OneAwayForward),
 			.ReadDataOut(ReadDataWB), .InstructionOut(InstructionWB), .ALUResultOut(ALUResultWB));
 			
 //WB:

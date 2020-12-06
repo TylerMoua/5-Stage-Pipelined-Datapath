@@ -1,5 +1,5 @@
 module MEMWB(input [15:0]InstructionIn, ReadDataIn, 
-			input [31:0] ALUResultIn, OpsIn,
+			input [31:0] ALUResultIn,
 			input clk, rst,
 			output reg [31:0] ALUResultOut, OneAwayForward,
 			output reg [15:0] ReadDataOut,InstructionOut);
