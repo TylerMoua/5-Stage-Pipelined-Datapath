@@ -1,0 +1,54 @@
+Registers:
+R1: 0E12 / 0e57 @ 00 / 1cae @ 20 /
+R2: 0045 / 0043 @ 02 /
+R3: F08F / 000C @ 0C /
+R4: F076 / FF56 @ 04 / 6789 @ 08 /
+R5: 0084 /
+R6: 6789 / FF56 @ 08 / FEEB @ 12 /
+R7: 00EB / 0063 @ 0A /
+R8: FF56 / FF56 @ 06 / 3CAD @ 22 /
+R9: 0000 /
+R10: 0000/
+R11: 0000/ 0e57 @ 16 / 0e9a @ 1A /
+R12: CC89/
+R13: 0002/
+R14: 0000/ 0000@ 0E /
+Others: 0000
+
+Data Memory:
+00: 3CAD
+02: 0000
+04: 1463
+06: DAED /0063 @ 10 /
+08: FEEB
+0A: FFFF
+0E: CCCC
+Other memory locations: 0000
+
+Instructions:
+00 ADD R1, R2   -> R1 = R1 + R2 = e12 + 45 = e57
+02 SUB R2, R13  -> R2 = R2 - R13 = 0045 - 2 = 0043
+04 MOV R4, R8   -> R4 = R8 = FF56
+06 OR R8, 0000  -> R8 = R8 OR 0000 = R8
+08 SWP R4, R6   -> R6 = R4 and R4 = R6 -> R6 =FF56, R4 = 6789
+0A LBU R7, 4(R9)-> R7= Memory[R9 + 4] = Memory[0004] = 0063
+0C ANDi R3, 4C  -> R3 = F08F & 004c =  000c
+0E SUB R14, R14 -> R14 = R14 - R14 = 0000- 0000 = 0000
+10 SB R7, 6(R9) -> Memory[0000 + 6] = 0063[7:0] -> Memory[6] =  63
+12 LW R6, 8(R9) -> R6 = Memory[R9 + 8] = Memory[8] = FEEB
+14 BEQ R7, 4    -> Do nothing. R7 != R15 = 0.
+16 ADD R11, R1  -> R11 = R11 + R1 = 0000 + 0e57= 0e57
+18 BLT R7, 5	-> Do nothing. R7 !< R15 = 0.
+1A ADD R11, R2	-> R11 = R11 + R2 = 0e57 + 0043 = 0e9a
+1C BGT R7, 2	-> Branch. R7 > R15. PC = PC + 2 + 2 = 1c + 4 = 20
+1E ADD R1, R1	-> Not executed
+20 ADD R1, R1	-> R1 = R1 + R1 = e57 + e57 = 1cae
+22 LW R8, 0(R9)	-> R8 = Memory[R9] = Memory[0] = 3CAD
+24 ADD R8, R8	-> R8 = R8 + R8 = 3CAD + 3CAD = 795A
+26 SW R8, 2(R9) -> 
+28 LW R10, 2(R9)-> 
+2A ADD R12, R10 -> 
+2C SUB R12, R13	-> 
+2E ADD R12, R13	-> 
+30 EF20 		->Halt/Exception
+Other memory locations=0000
