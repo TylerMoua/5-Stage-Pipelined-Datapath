@@ -29,6 +29,7 @@ begin
 		//SUB R0 R1: R0 = 3 - 1 = 3
 		Instructions[6]<=8'h10;
 		Instructions[7]<=8'h11;
+		//Instruction 30 should be an unknown opcode exception
 
 	end
 end
