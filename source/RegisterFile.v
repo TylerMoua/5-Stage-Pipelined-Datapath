@@ -1,15 +1,24 @@
 module RegisterFile(input [3:0] ReadReg1,ReadReg2,WriteReg1,WriteReg2,
 					input [15:0]  WriteData1, WriteData2,
 					input clk, rst, RegWrite, WriteOP2,
-					output [15:0] ReadData1, ReadData2, R15);
+					output reg [15:0] ReadData1, ReadData2, R15);
 					   
 reg [15:0] Registers [15:0];
 integer i;
 
-	//Unconditional Outputs:
-	assign ReadData1 = Registers [ReadReg1];
-	assign ReadData2 = Registers [ReadReg2];
-	assign R15 = Registers [15];
+//Unconditional Outputs:
+//Fix issue with instructions that are 3 away
+always@(*)
+begin
+	ReadData1 = Registers [ReadReg1];
+	ReadData2 = Registers [ReadReg2];
+	R15 = Registers [15];
+	if(WriteReg1 == ReadReg1)
+	begin
+		ReadData1 = WriteData1;
+	end
+end
+
 
 always @(posedge clk, negedge rst)
 begin

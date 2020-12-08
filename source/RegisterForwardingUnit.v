@@ -1,7 +1,8 @@
 module RegisterForwardingUnit(input [3:0] OP1, OP2, BTBOP1, BTBOP2, OAOP1, OAOP2, OpcodeMEM, OpcodeWB, FunctionCodeMEM, FunctionCodeWB,
 							  input [3:0] IDOP1, OpcodeEX,
 							  output reg [2:0] ForwardToMux3,ForwardToMux4, ForwardToMux5,
-							  output reg [1:0]HazardDetected);
+							  output reg [1:0]HazardDetected,
+							  output reg ForwardToMux6);
 							 
 always @(*)
 begin
@@ -9,6 +10,7 @@ begin
 	ForwardToMux3=000;
 	ForwardToMux4=000;
 	ForwardToMux5=000;
+	ForwardToMux6=0;
 
 //Branch Hazards: 
 //IDOP1 deals with Mux4 Hazard[1] for branch hazards
@@ -40,12 +42,22 @@ begin
 	end
 
 //OTHER:
+if(BTBOP1 == OAOP1)
+	if((OpcodeMEM == 4'b0101)||(OpcodeMEM == 4'b0111))
+	begin
+		ForwardToMux6 = 1;
+	end
 //OP1 Deals with Mux5
 	if(OP1 == BTBOP1)
 	begin
-		//if load
+		//if load in mem
 		if((OpcodeMEM == 4'b0110)||(OpcodeMEM == 4'b0100))
 			ForwardToMux5 = 011;
+		//We don't forward to the operand of a SW in EX
+		else if((OpcodeEX == 4'b0101)||(OpcodeEX == 4'b0111))
+		begin
+			//Do nothing
+		end
 		else
 			ForwardToMux5 = 001;
 		HazardDetected[0]=1;

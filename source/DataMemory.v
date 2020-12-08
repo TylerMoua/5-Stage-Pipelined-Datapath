@@ -1,6 +1,7 @@
 module DataMemory #(parameter N = 100)
 						  (input [15:0]Address, WriteData,
-						   input clk, rst, memWrite,
+						   input [7:0] WriteByte,
+						   input clk, rst, memWrite, StoreOffset,
 						   output [15:0] ReadData);
 
 reg [7:0] Data [N-1:0];
@@ -8,13 +9,6 @@ integer i;
 
 assign ReadData = {Data [Address],Data [Address+1]};
 
-always @(Address, WriteData)
-begin
-	if(memWrite)
-	begin
-		Data [Address] <= WriteData;
-	end
-end	
 always @(posedge clk, negedge rst)
 begin
 	
@@ -44,6 +38,18 @@ begin
 		Data[14]<=8'hCC;		
 		Data[15]<=8'hCC;
 		
+	end
+	if(memWrite)
+	begin
+		if(StoreOffset==1)
+		begin
+			Data[Address+1] <=WriteByte;
+		end
+		else
+		begin
+			Data [Address] <= WriteData[15:8];
+			Data [Address+1] <= WriteData[7:0];
+		end
 	end
 end
 endmodule

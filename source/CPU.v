@@ -12,8 +12,8 @@
 `include "MUX1.v";
 `include "MUX2.v";
 `include "MUX3.v";
-`include "MUX4.v";
 `include "MUX5.v";
+`include "MUX6.v";
 `include "MUX7.v";
 `include "BranchEquator.v"
 `include "SignExtendID.v"
@@ -38,7 +38,7 @@ wire [15:0] OP1MEM, R15ID, R15EX, PCToAdd, Four, Eight, Twelve;
 wire [15:0]  M3Result, M5Result, ReadDataExtended;
 
 //Control Signals
-wire  StayHalted, StopPC, Overflow, Branch, Jump, Halt, WriteOP2, RegWrite,  ALUSRC2;
+wire ForwardToMux6, StayHalted, StopPC, Overflow, Branch, Jump, Halt, WriteOP2, RegWrite,  ALUSRC2;
 wire MemRead, MemWrite, StoreOffset, BranchingSoFlush, BranchingSoFlushEX;
 wire [3:0] ALUOPID, ALUOPEX;		
 wire [2:0] ALUControl,  ForwardToMux4, ForwardToMux3, ForwardToMux5;
@@ -87,12 +87,7 @@ ZeroExtend ZEID(.a(InstructionID[7:0]), .Result(Eight));
 				   
 MUX2 	M2(.four(Four),.eight(Eight),.twelve(Twelve),
 				.offsetSelect(OffsetSelect),.Result(SEImmdID));
-								   
-/* MUX4 	M4(.Op(SEImmdID), 
-			.Btb(BTBForward), .oneAway(OneAwayForward),.ForwardToMux4(ForwardToMux4),
-			.hazard(Hazard[1]),
-		  .Result(PCALU2OP)); */
-		  
+								     
 ShiftLeft SL(.a(SEImmdID), .Result(PCALU2OPShifted));
 
 MainALU PCALU2(.Op1(PCToAdd), .Op2(PCALU2OPShifted), .ALUControl(3'b000), .Result(JBPC));
@@ -126,7 +121,7 @@ EXMEM EXMEM(.InstructionIn(InstructionEX), .OP1In(OP1EX), .OP2In(OP2EX),
 			.clk(clk), .rst(rst), .ALUResultOut(ALUResultMEM), .InstructionOut(InstructionMEM),
 			.OP1Out(OP1MEM),.BTBForward(BTBForward));
 			
-RegisterForwardingUnit RFU(.IDOP1(InstructionID[11:8]),
+RegisterForwardingUnit RFU(.IDOP1(InstructionID[11:8]), .ForwardToMux6(ForwardToMux6),
 						   .OP1(InstructionEX[11:8]), .OP2(InstructionEX[7:4]),
 						   .BTBOP1(InstructionMEM[11:8]),.BTBOP2(InstructionMEM[7:4]), 
 						   .OAOP1(InstructionWB[11:8]), .OAOP2(InstructionWB[7:4]),
@@ -143,9 +138,14 @@ BCHazardControlUnit	BCHCU(.IDOP(InstructionID[15:12]),.EXOP(InstructionEX[15:12]
 //MEM:
 SignExtendMEM SEMEM(.a(OP1MEM[7:0]), .Result(SEOp1));
 
-MUX1 M1MEM(.A(OP1MEM), .B(SEOp1), .BranchingSoFlush(StoreOffset), .Result(Op1ToStore));
+MUX6 M6(.A(OP1MEM), .B(SEOp1), .ForwardValue(ResultWB[15:0]),
+		.StoreOffset(StoreOffset), 
+		.Forward(ForwardToMux6),.Result(Op1ToStore));
 
-DataMemory DM(.Address(ALUResultMEM[15:0]), .WriteData(Op1ToStore),.clk(clk), .rst(rst), .memWrite(MemWrite),.ReadData(ReadDataMEM));
+DataMemory DM(.Address(ALUResultMEM[15:0]), .WriteData(Op1ToStore),
+				.StoreOffset(StoreOffset),
+				.clk(clk), .rst(rst), .memWrite(MemWrite),
+				.ReadData(ReadDataMEM), .WriteByte(OP1MEM[7:0]));
 
 MEMWB MEMWB(.InstructionIn(InstructionMEM), .ReadDataIn(ReadDataMEM),.ALUResultIn(ALUResultMEM), 
 			.clk(clk), .rst(rst), .OneAwayForward(OneAwayForward), .OP1In(Op1ToStore),
