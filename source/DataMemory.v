@@ -4,17 +4,25 @@ module DataMemory #(parameter N = 100)
 						   output [15:0] ReadData);
 
 reg [7:0] Data [N-1:0];
+integer i;
 
 assign ReadData = {Data [Address],Data [Address+1]};
 
+always @(Address, WriteData)
+begin
+	if(memWrite)
+	begin
+		Data [Address] <= WriteData;
+	end
+end	
 always @(posedge clk, negedge rst)
 begin
 	
 	if(!rst)
 	begin
 		//Test Value
-		//for (i = 0; i<16; i=i+1)
-		//	Instructions[i]<=0;
+		for (i = 0; i<16; i=i+1)
+			Data[i]<=0;
 		Data[0]<=8'h3c;
 		Data[1]<=8'hAD;
 		
@@ -37,12 +45,5 @@ begin
 		Data[15]<=8'hCC;
 		
 	end
-	else
-	begin
-		if(memWrite)
-		begin
-			Data [Address] <= WriteData;
-		end
-	end	
 end
 endmodule

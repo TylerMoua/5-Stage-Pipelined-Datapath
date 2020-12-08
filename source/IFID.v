@@ -1,5 +1,5 @@
 module IFID(input [15:0]PCIN, InstructionIn, OldInstruction,
-			input clk, rst, FlushIn, Halt, StopPC,
+			input clk, rst, FlushIn, Halt, StopPC, StayHalted,
 			output reg FlushOut,
 			output reg [15:0] PCOUT, InstructionOut);
 						   
@@ -10,9 +10,9 @@ begin
 	begin
 
 	end
-	else if(Halt)
+	else if(Halt||StayHalted)
 	begin
-		InstructionOut<=4'hxxxx;
+		InstructionOut<=16'hxxxx;
 	end
 	else
 	if(StopPC)

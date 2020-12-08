@@ -15,7 +15,9 @@ begin
 		3'b000: 
 		begin
 			Result1 = Op1 + Op2;
-			Overflow = Result1[16];	
+			//Ex 1 1000 vs 1 0000 vs 0 1101, becauase its signed
+			if(Result1[16]!=Result1[15])
+				Overflow = 1;	
 		end
 		//SUB
 		3'b001: 

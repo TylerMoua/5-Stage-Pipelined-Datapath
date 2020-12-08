@@ -38,11 +38,11 @@ wire [15:0] OP1MEM, R15ID, R15EX, PCToAdd, Four, Eight, Twelve;
 wire [15:0]  M3Result, M5Result, ReadDataExtended;
 
 //Control Signals
-wire  StopPC, Overflow, Branch, Jump, Halt, WriteOP2, RegWrite, Hazard, ALUSRC2;
+wire  StayHalted, StopPC, Overflow, Branch, Jump, Halt, WriteOP2, RegWrite,  ALUSRC2;
 wire MemRead, MemWrite, StoreOffset, BranchingSoFlush, BranchingSoFlushEX;
 wire [3:0] ALUOPID, ALUOPEX;		
 wire [2:0] ALUControl,  ForwardToMux4, ForwardToMux3, ForwardToMux5;
-wire [1:0] MemToReg, ALUSRC1, OffsetSelect, BranchSelect;
+wire [1:0] Hazard, MemToReg, ALUSRC1, OffsetSelect, BranchSelect;
 
 //Hazard Signals
 
@@ -52,7 +52,7 @@ wire [1:0] MemToReg, ALUSRC1, OffsetSelect, BranchSelect;
 MUX1 M1(.A(NewPC[15:0]),.B(JBPC[15:0]),.BranchingSoFlush(BranchingSoFlush),.Result(PCMUXResult));
 
 PC ProgramCounter(.NewPC(PCMUXResult), .clk(clk), .rst(rst), 
-				.Halt(Halt), .StopPC(StopPC), .PC(PCOut));
+				.Halt(Halt), .StayHalted(StayHalted), .StopPC(StopPC), .PC(PCOut));
 
 MainALU PCALU1(.Op1(PCOut), .Op2(16'h0002), .ALUControl(3'b000), .Result(NewPC));
 				
@@ -61,7 +61,7 @@ InstructionMemory IM(.ReadAddress(PCOut), .clk(clk),.rst(rst),
 				
 IFID IFID(.PCIN(NewPC[15:0]),.InstructionIn(InstructionIF), .clk(clk), .rst(rst), .Halt(Halt), 
 			.PCOUT(PCToAdd), .InstructionOut(InstructionID), .FlushIn(BranchingSoFlush),
-			 .FlushOut(BranchingSoFlushEX), .StopPC(StopPC),
+			 .FlushOut(BranchingSoFlushEX), .StopPC(StopPC), .StayHalted(StayHalted),
 			 .OldInstruction(InstructionID));
 
 //ID:
@@ -88,16 +88,16 @@ ZeroExtend ZEID(.a(InstructionID[7:0]), .Result(Eight));
 MUX2 	M2(.four(Four),.eight(Eight),.twelve(Twelve),
 				.offsetSelect(OffsetSelect),.Result(SEImmdID));
 								   
-MUX4 	M4(.Op(SEImmdID), 
+/* MUX4 	M4(.Op(SEImmdID), 
 			.Btb(BTBForward), .oneAway(OneAwayForward),.ForwardToMux4(ForwardToMux4),
-			.hazard(Hazard),
-		  .Result(PCALU2OP));
+			.hazard(Hazard[1]),
+		  .Result(PCALU2OP)); */
 		  
-ShiftLeft SL(.a(PCALU2OP), .Result(PCALU2OPShifted));
+ShiftLeft SL(.a(SEImmdID), .Result(PCALU2OPShifted));
 
 MainALU PCALU2(.Op1(PCToAdd), .Op2(PCALU2OPShifted), .ALUControl(3'b000), .Result(JBPC));
 
-BranchEquator BE(.Op1(OP1ID),.Hazard(Hazard), .R15(R15ID), .BranchSelect(BranchSelect),
+BranchEquator BE(.Op1(OP1ID),.Hazard(Hazard[1]), .R15(R15ID), .BranchSelect(BranchSelect),
 				.BTB(BTBForward), .OneAway(OneAwayForward), .HazardSelect(ForwardToMux4),
 				 .Branch(Branch), .Jump(Jump),.BranchingSoFlush(BranchingSoFlush));	
 							
@@ -108,11 +108,11 @@ IDEX 	IDEX(.InstructionIn(InstructionID), .OP1In(OP1ID),.OP2In(OP2ID), .clk(clk)
 			 .SEImmdOut(SEImmdEX), .R15In(R15ID), .R15Out(R15EX),.flush(BranchingSoFlushEX));
 //EX:
 MUX3	M3(.SEIMMD(SEImmdEX), .Op2(OP2EX), .Btb(BTBForward), .oneAway(OneAwayForward), .R15(R15EX),
-		   .hazard(Hazard),.ALUSRC(ALUSRC1),.ForwardToMux3(ForwardToMux3),
+		   .hazard(Hazard[0]),.ALUSRC(ALUSRC1),.ForwardToMux3(ForwardToMux3),
 		   .Result(M3Result));
 		   
 MUX5	M5(.SEIMMD(SEImmdEX), .Op1(OP1EX), .Btb(BTBForward), .oneAway(OneAwayForward),
-		   .hazard(Hazard),.ALUSRC(ALUSRC2),.ForwardToMux5(ForwardToMux5),
+		   .hazard(Hazard[0]),.ALUSRC(ALUSRC2),.ForwardToMux5(ForwardToMux5),
 		   .Result(M5Result));
 		   
 ALUControlUnit ACU(.ALUOP(ALUOPID), .FunctionCode(InstructionEX[3:0]), 
@@ -132,6 +132,7 @@ RegisterForwardingUnit RFU(.IDOP1(InstructionID[11:8]),
 						   .OAOP1(InstructionWB[11:8]), .OAOP2(InstructionWB[7:4]),
 						   .ForwardToMux3(ForwardToMux3), .ForwardToMux4(ForwardToMux4), 
 						   .ForwardToMux5(ForwardToMux5), .HazardDetected(Hazard),
+						   .OpcodeEX(InstructionEX[15:12]),
 						   .OpcodeMEM(InstructionMEM[15:12]), .FunctionCodeMEM(InstructionMEM[3:0]),
 						   .OpcodeWB(InstructionWB[15:12]), .FunctionCodeWB(InstructionWB[3:0]));
 
@@ -147,7 +148,7 @@ MUX1 M1MEM(.A(OP1MEM), .B(SEOp1), .BranchingSoFlush(StoreOffset), .Result(Op1ToS
 DataMemory DM(.Address(ALUResultMEM[15:0]), .WriteData(Op1ToStore),.clk(clk), .rst(rst), .memWrite(MemWrite),.ReadData(ReadDataMEM));
 
 MEMWB MEMWB(.InstructionIn(InstructionMEM), .ReadDataIn(ReadDataMEM),.ALUResultIn(ALUResultMEM), 
-			.clk(clk), .rst(rst), .OneAwayForward(OneAwayForward),
+			.clk(clk), .rst(rst), .OneAwayForward(OneAwayForward), .OP1In(Op1ToStore),
 			.ReadDataOut(ReadDataWB), .InstructionOut(InstructionWB), .ALUResultOut(ALUResultWB));
 			
 //WB:

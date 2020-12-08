@@ -21,7 +21,7 @@ initial
 initial
 begin
 	clk = 1'b0;
-	forever #8 clk = ~clk;
+	forever #10 clk = ~clk;
 end
 
 initial
@@ -33,14 +33,24 @@ end
 initial
 begin
 	$display("\nWriting:");
-	WriteReg1 = 4'b1111;
-	WriteData1 = 65535;
+	WriteReg1 = 4'b0000;
+	WriteData1 = 1;
 	WriteReg2 = 4'b1010;
-	WriteData2 = 2000;	
+	WriteData2 = 1;	
 	RegWrite = 1;
 	WriteOP2 = 1;	
-	ReadReg1 = 4'b1111;
-	ReadReg2 = 4'b1010;
+	@(posedge clk);
+	ReadReg1 = 4'b0000;
+	ReadReg2 = 4'b0001;
+	$display("\nReading:");
+	@(posedge clk);
+	$display("\nWriting:");
+	WriteReg1 = 4'b0001;
+	WriteData1 = 0;
+	WriteReg2 = 4'b1010;
+	WriteData2 = 0;	
+	RegWrite = 1;
+	WriteOP2 = 1;	
 	@(posedge clk);
 	$display("\nReading:");
 

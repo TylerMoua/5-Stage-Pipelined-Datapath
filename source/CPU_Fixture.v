@@ -18,14 +18,19 @@ end
 initial
 begin
 
-	$monitor("\nPC: %h\nRegisters:\n[0]:%h\n[1]:%h\n[2]:%h\n[3]:%h\n[4]:%h\n[5]:%h\n[6]:%h\n[7]:%h\n\nMemory:\n[0]:%h\n[1]:%h\n[2]:%h\n[3]:%h\n[4]:%h\n[5]:%h\n[6]:%h\n[7]:%h\n[8]:%h\n[9]:%h",
+	$monitor("\nPC: %h\nRegisters:\n[0]:%h\n[1]:%h\n[2]:%h\n[3]:%h\n[4]:%h\n[5]:%h\n[6]:%h\n[7]:%h\n[8]:%h\n[9]:%h\n[10]:%h\n[11]:%h\n[12]:%h\n[13]:%h\n[14]:%h\n[15]:%h\n\nMemory:\n[0]:%h\n[1]:%h\n[2]:%h\n[3]:%h\n[4]:%h\n[5]:%h\n[6]:%h\n[7]:%h\n[8]:%h\n[9]:%h\n[A]:%h\n[B]:%h\n[C]:%h\n[D]:%h\n[E]:%h\n[F]:%h",
 			CPU.ProgramCounter.PC,
 			CPU.RF.Registers[0], CPU.RF.Registers[1], CPU.RF.Registers[2], 
 			CPU.RF.Registers[3], CPU.RF.Registers[4], CPU.RF.Registers[5],
-			CPU.RF.Registers[6], CPU.RF.Registers[7],
+			CPU.RF.Registers[6], CPU.RF.Registers[7], CPU.RF.Registers[8], 
+			CPU.RF.Registers[9], CPU.RF.Registers[10], CPU.RF.Registers[11], 
+			CPU.RF.Registers[12], CPU.RF.Registers[13],CPU.RF.Registers[14], 
+			CPU.RF.Registers[15],
+			
 			CPU.DM.Data[0], CPU.DM.Data[1], CPU.DM.Data[2], CPU.DM.Data[3], 
 			CPU.DM.Data[4], CPU.DM.Data[5], CPU.DM.Data[6], CPU.DM.Data[7], 
-			CPU.DM.Data[8], CPU.DM.Data[9]);	
+			CPU.DM.Data[8], CPU.DM.Data[9], CPU.DM.Data[10], CPU.DM.Data[11], 
+			CPU.DM.Data[12], CPU.DM.Data[13], CPU.DM.Data[14], CPU.DM.Data[15]);	
 			
 end
 
@@ -37,6 +42,6 @@ begin
 end
 
 initial
-	#180 $finish;
+	#580 $finish;
 
 endmodule

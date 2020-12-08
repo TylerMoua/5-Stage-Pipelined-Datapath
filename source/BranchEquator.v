@@ -1,8 +1,8 @@
 module BranchEquator(input [15:0] Op1,R15,
 					 input [31:0] BTB, OneAway,
-					 input [1:0]  BranchSelect,
+					 input [1:0]   BranchSelect,
 					 input [2:0] HazardSelect,
-					 input Branch, Jump, Hazard,
+					 input Hazard, Branch, Jump, 
 					 output reg BranchingSoFlush);
 
 reg Negative, Zero;
@@ -14,6 +14,7 @@ begin
 	Negative = 1'b0;
 	Zero = 1'b0;
 	BranchingSoFlush=1'b0;
+	Operand = Op1;
 	
 	if(Hazard)
 	begin

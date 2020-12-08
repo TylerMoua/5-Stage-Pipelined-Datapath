@@ -3,12 +3,9 @@ module SignExtendID(input [3:0] a,
 		  output reg [15:0] ResultA, ResultB);
 always @(*)
 begin
-
-	ResultA = {a[3],a[3],a[3],a[3],
-			   a[3],a[3],a[3],a[3],
-			   a[3],a[3],a[3],a[3],
-			   a};
-	ResultB = {b[11],b[11],b[11],b[11],
-			  b};
+	//Zero Extention, we don't access negative memory locations
+	ResultA = {12'h000,a};
+	//SignExtention
+	ResultB = {4'h0, b};
 end
 endmodule
