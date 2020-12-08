@@ -15,19 +15,21 @@ always @(posedge clk, negedge rst)
 begin
 	if(!rst)
 	begin
-		//for (i = 0; i<16; i=i+1)
-		//	Registers[i]<=0;
+		for (i = 0; i<16; i=i+1)
+			Registers[i]<=0;
 	//Test Values:
 		Registers[0] <= 16'h0000;
-		Registers[1] <= 16'h0001;
-		Registers[2] <= 16'h0002;
-		Registers[3] <= 16'h0003;
-		Registers[4] <= 16'h0004;
-		Registers[5] <= 16'h0005;
-		Registers[6] <= 16'h0006;
-		Registers[7] <= 16'h0007;
-		
-		Registers[15] <= 16'h0000;
+		Registers[1] <= 16'h0e12;
+		Registers[2] <= 16'h0045;
+		Registers[3] <= 16'hF08F;
+		Registers[4] <= 16'hF076;
+		Registers[5] <= 16'h0084;
+		Registers[6] <= 16'h6789;
+		Registers[7] <= 16'h00EB;
+		Registers[8] <= 16'hFF56;
+		Registers[12] <= 16'hCC89;
+		Registers[13] <= 16'h0002;
+
 
 
 	end
