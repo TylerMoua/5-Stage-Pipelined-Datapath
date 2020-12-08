@@ -8,16 +8,16 @@ R6: 6789 / FF56 @ 08 / FEEB @ 12 /
 R7: 00EB / 0063 @ 0A /
 R8: FF56 / FF56 @ 06 / 3CAD @ 22 /
 R9: 0000 /
-R10: 0000/
+R10: 0000/ 795A @ 28 / 
 R11: 0000/ 0e57 @ 16 / 0e9a @ 1A /
 R12: CC89/
 R13: 0002/
-R14: 0000/ 0000@ 0E /
+R14: 0000/ 0000 @ 0E /
 Others: 0000
 
 Data Memory:
 00: 3CAD
-02: 0000
+02: 0000 /795A @ 26 /
 04: 1463
 06: DAED /0063 @ 10 /
 08: FEEB
@@ -45,10 +45,10 @@ Instructions:
 20 ADD R1, R1	-> R1 = R1 + R1 = e57 + e57 = 1cae
 22 LW R8, 0(R9)	-> R8 = Memory[R9] = Memory[0] = 3CAD
 24 ADD R8, R8	-> R8 = R8 + R8 = 3CAD + 3CAD = 795A
-26 SW R8, 2(R9) -> 
-28 LW R10, 2(R9)-> 
-2A ADD R12, R10 -> 
-2C SUB R12, R13	-> 
-2E ADD R12, R13	-> 
+26 SW R8, 2(R9) -> Memory[2 + R9] = R8 -> Memory[2] = 795A
+28 LW R10, 2(R9)-> R10 = Memory[2 + R9]-> R10 = Memory[2] = 795A
+2A ADD R12, R10 -> R12 = R12 + R10 = 795A + CC89 -> Overflow.
+2C SUB R12, R13	-> Not executed
+2E ADD R12, R13	-> Not executed
 30 EF20 		->Halt/Exception
 Other memory locations=0000
