@@ -26,7 +26,7 @@
 
 
 
-module CPU (input clk, rst);
+module cpu (input clk, rst);
 //Data Wires
 wire [31:0] JBPC, ALUResultEX, ALUResultMEM, ALUResultWB, ResultWB, NewPC;
 wire [31:0] SEData, SEByte, BTBForward, OneAwayForward;

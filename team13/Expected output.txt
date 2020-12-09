@@ -48,7 +48,7 @@ Instructions:
 24 ADD R8, R8	-> R8 = R8 + R8 = 3CAD + 3CAD = 795A
 26 SW R8, 2(R9) -> Memory[2 + R9] = R8 -> Memory[2] = 795A
 28 LW R10, 2(R9)-> R10 = Memory[2 + R9]-> R10 = Memory[2] = 795A
-2A ADD R12, R10 -> R12 = R12 + R10 = 795A + CC89 -> Overflow.
+2A ADD R12, R10 -> R12 = R12 + R10 = 795A + CC89 =145e3 -> Overflow.
 2C SUB R12, R13	-> Not executed
 2E ADD R12, R13	-> Not executed
 30 EF20 		->Halt/Exception
